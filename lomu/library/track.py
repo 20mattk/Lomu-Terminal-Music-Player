@@ -10,8 +10,8 @@ class AudioFormat(str, Enum):
     This Enum is used as a data type for an attribute in the Track class.
     """
     MP3 = ".mp3"
-    WAV = ".wav"
     FLAC = ".flac"
+    WAV = ".wav"
 
     @classmethod
     def from_suffix(cls, suffix: str) -> AudioFormat:
@@ -46,7 +46,7 @@ class AudioFormat(str, Enum):
 @dataclass(slots=True, frozen=True)
 class Track:
     """
-    Represents a music track with metadata.
+    Track simply represents a trakc's data.
 
     Instances are immuatable to prevent accidental modification and to enable
     use in playlists.
