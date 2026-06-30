@@ -3,4 +3,4 @@ __pycahce__/
 *.pyc
 .DS_Store
 project_notes.txt
-.project_notes.txt.swp
+*.txt.swp
