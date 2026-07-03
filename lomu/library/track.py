@@ -1,3 +1,7 @@
+# === TODO === #
+# > Add album_art image (path or data) as a Track attribute
+
+
 from dataclasses import dataclass, field
 from pathlib import Path
 from enum import Enum
@@ -68,6 +72,7 @@ class Track:
     track_number: int
     duration: float
     audio_format: AudioFormat = field(init=False)
+    # album_art
 
     def __post_init__(self):
         if self.track_number <= 0:

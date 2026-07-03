@@ -1,6 +1,7 @@
 # === TODO === #
 # 1. Finish MP3 tag extraction
 # 2. Finish WAV tag extraction
+# 3. Implement album_art image (path or data) extraction
 
 
 from .track import Track, AudioFormat
@@ -40,6 +41,7 @@ class MP3MetadataExtractor(MetadataExtractor):
             audio.get("TRCK", "Unknown Track Number").text[0]
         )
         duration: float = File(file_path).info.length
+        # album_art
 
         print(
             f"File Path: {file_path}\n"
@@ -49,6 +51,7 @@ class MP3MetadataExtractor(MetadataExtractor):
             f"Release Date: {release_date}\n"
             f"Track Number: {track_number}\n"
             f"Duration: {duration}\n"
+            # f"Album Art: {album_art}\n"
         )
 
         # return Track(
@@ -59,6 +62,7 @@ class MP3MetadataExtractor(MetadataExtractor):
         #     release_date="1907-01-01",
         #     track_number=1,
         #     duration=180.00
+        #     album_art=album_art
         # )
 
         pass
@@ -80,6 +84,7 @@ class FLACMetadataExtractor(MetadataExtractor):
             audio.get("number", ["Unknown Track Number"])[0]
         )
         duration: float = File(file_path).info.length
+        # album_art
 
         return Track(
             file_path=file_path,
@@ -89,6 +94,7 @@ class FLACMetadataExtractor(MetadataExtractor):
             release_date=release_date,
             track_number=track_number,
             duration=duration
+            # album_art=album_art
         )
 
 
@@ -98,24 +104,34 @@ class WAVMetadataExtractor(MetadataExtractor):
     Extracts .wav file metadata to generate a Track object.
     """
     def extract_metadata(self, file_path: Path) -> Track:
-        # extraction logic with mutagen
+        # print(WAVE(file_path))
         audio: WAVE = WAVE(file_path)
 
-        title: str = audio.get("title", ["Unknown Title"])[0]
-        artist: str = audio.get("artist", ["Unknown Artist"])[0]
-        album: str = audio.get("album", ["Unknown Album"])[0]
+        # title = "TIT2"
+        # artist = "TPE1"
+        # album = "TALB"
+        # release_date = "
+        # track_number = "TRCK"
+        # duration = 
+        # ? album_art = "APIC" ?
+
+        title: str = audio.get("TIT2", ["Unknown Title"])[0]
+        artist: str = audio.get("TPE1", ["Unknown Artist"])[0]
+        album: str = audio.get("TALB", ["Unknown Album"])[0]
         release_date: str = audio.get("date", ["Unknown Release Date"])[0]
-        # track_number
+        track_number: str = int(audio.get("TRCK", ["Unknown Track Number"])[0].split("/")[0])
         duration: float = File(file_path).info.length
+        # album_art
 
         print(
             f"File Path: {file_path}\n"
             f"Title: {title}\n"
             f"Artist: {artist}\n"
-            f"Album: {artist}\n"
+            f"Album: {album}\n"
             f"Release Date: {release_date}\n"
-            # f"Track Number: {track_number}\n"
+            f"Track Number: {track_number}\n"
             f"Duration: {duration}\n"
+            # album_art
         )
 
         # return Track(
@@ -126,6 +142,7 @@ class WAVMetadataExtractor(MetadataExtractor):
         #     release_date="1907-01-01",
         #     track_number=1,
         #     duration=180.00
+        #     album_art
         # )
 
         pass
