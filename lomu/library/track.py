@@ -91,36 +91,58 @@ class Track:
             AudioFormat.from_suffix(self.file_path.suffix)
         )
 
-    def _normalize_date(self, date: str) -> str:
+    @staticmethod
+    def _validate_date_parts(date: str) -> str:
+        """
+        Validates that date parts are within valid ranges
+        If the month or day is an invalid number, both will default to 01.
+        If the format is valid, the date itself is returned.
+
+        Arguments:
+            date (str): The date string to validate.
+
+        Returns:
+            (str): A string of the validated date.
+
+        Raises:
+            None
+        """
+        date_parts: list[str] = str(date).replace("/", "-").split("-")
+
+        if len(date_parts) == 3:
+            year, month, day = date_parts
+            
+            if not (1 <= int(month) <= 12) or not (1 <= int(day) <= 31):
+                return f"{year}-01-01"
+            else:
+                return str(date)
+        else:
+            return str(date)
+
+    @staticmethod
+    def _normalize_date(date: str) -> str:
         """
         Ensures that a provided date string is of a valid format.
-        If the format is valid, the date is transformed into 'YYYY-MM-DD'.
-        If the month is an invalid number, it defaults to 01.
-        If the day is an invalid number, it defaults to 01.
         Valid inputs: 'YYYY-MM-DD', 'YYYY', 'YY-MM-DD'
 
         Arguments:
-            self (Track): The instance of the Track class.
             date (str): The date string to validate and normalize.
 
         Returns:
-            (str): A string of the valid date formatted to 'YYYY-MM-DD'.
+            (str): A string of the normalized date formatted to 'YYYY-MM-DD'.
 
         Raises:
             ValueError: If the inputted string is of no valid format.
         """
-        valid_formats: list[str] = ["%Y-%m-%d", "%Y", "%y-%m-%d"]
+        date = Track._validate_date_parts(date)
+
+        valid_formats: list[str] = ["%Y-%m-%d", "%y-%m-%d", "%Y"]
 
         for valid_format in valid_formats:
             try:
-                parsed_date: str = datetime.strptime(date, valid_format)
-
-                if not (1 <= parsed_date.month <= 12):
-                    parsed_date = parsed_date.replace(month=1, day=1)
-                elif not (1 <= parsed_date.day <= 31):
-                    parsed_date = parsed_date.replace(day=1)
-
-                return parsed_date.strftime("%Y-%m-%d")
+                return datetime.strptime(
+                    date, valid_format
+                ).strftime("%Y-%m-%d")
             except:
                 pass
 
