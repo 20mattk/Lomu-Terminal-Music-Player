@@ -86,26 +86,32 @@ def make_track(**kwargs):
 
 def test_track_sets_audio_format():
     track: Track = make_track()
-
     assert track.audio_format == AudioFormat.MP3
 
 
 def test_track_sets_valid_release_date_YYYYMMDD():
     track: Track = make_track()
-
     assert track.release_date == "2023-05-19"
 
 
 def test_track_sets_valid_release_date_YYYY():
     track: Track = make_track(release_date="2007")
-
     assert track.release_date == "2007-01-01"
 
 
 def test_track_sets_valid_release_date_YYMMDD():
     track: Track = make_track(release_date="08-09-20")
-
     assert track.release_date == "2008-09-20"
+
+
+def test_track_adjusts_to_valid_release_date_YYYYMMDD():
+    track: Track = make_track(release_date="2009-18-20")
+    assert track.release_date == "2009-01-01"
+
+
+def test_track_adjusts_to_valid_release_date_YYMMDD():
+    track: Track = make_track(release_date="09-18-78")
+    assert track.release_date == "2009-01-01"
 
 
 def test_track_invalid_track_number():
