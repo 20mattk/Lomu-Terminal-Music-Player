@@ -1,7 +1,3 @@
-# === TODO === #
-# > Add album_art image (path or data) as a Track attribute
-
-
 from dataclasses import dataclass, field
 from pathlib import Path
 from enum import Enum
@@ -63,6 +59,8 @@ class Track:
         release_date (str): 'YYYY-MM-DD' date on which the album was released.
         track_number (int): The order in which the track appears on its album.
         duration (float): The length in seconds of the track.
+        album_art (bytes | None): The byte data of the file's album art.
+        audio_format (AudioFormat): The type of audio format the track is in.
     """
     file_path: Path
     title: str
@@ -71,10 +69,13 @@ class Track:
     release_date: str
     track_number: int
     duration: float
+    album_art: Optional[bytes] = None
     audio_format: AudioFormat = field(init=False)
-    # album_art
 
     def __post_init__(self):
+        """
+        A post-constructor to dynamically set some frozen dataclass attributes.
+        """
         if self.track_number <= 0:
             raise ValueError("track_number must be greater than 0.")
 
@@ -110,9 +111,14 @@ class Track:
 
         for valid_format in valid_formats:
             try:
-                return datetime.strptime(
-                    date, valid_format
-                ).strftime("%Y-%m-%d")
+                parsed_date: str = datetime.strptime(date, valid_format)
+
+                if not (1 <= parsed_date.month <= 12):
+                    parsed_date = parsed_date.replace(month=1, day=1)
+                elif not (1 <= parsed_date.day <= 31):
+                    parsed_date = parsed_date.replace(day=1)
+
+                return parsed_date.strftime("%Y-%m-%d")
             except:
                 pass
 
