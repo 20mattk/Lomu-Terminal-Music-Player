@@ -95,6 +95,8 @@ class Track:
         """
         Ensures that a provided date string is of a valid format.
         If the format is valid, the date is transformed into 'YYYY-MM-DD'.
+        If the month is an invalid number, it defaults to 01.
+        If the day is an invalid number, it defaults to 01.
         Valid inputs: 'YYYY-MM-DD', 'YYYY', 'YY-MM-DD'
 
         Arguments:
