@@ -150,6 +150,19 @@ class MetadataFactory:
 
 
 def load_track(file_path: str | Path) -> Track:
+    """
+    The function to expose to the rest of the application.
+    This acts as the access point to the Factory Method.
+
+    Arguments:
+        file_path (str | Track): Path to the audio file to extract data from.
+
+    Returns:
+        (Track): The file's extracted metadata as a Track object.
+
+    Raises:
+        None
+    """
     file_path: Path = Path(file_path)
     audio_format: AudioFormat = AudioFormat(file_path.suffix.lower())
 
