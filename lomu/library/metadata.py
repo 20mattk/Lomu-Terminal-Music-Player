@@ -29,6 +29,15 @@ class MP3MetadataExtractor(MetadataExtractor):
         """
         The inherited abstract method which has been defined for .mp3 files.
         Creates and returns a Track object.
+
+        Arguments:
+            file_path (Path): The file path to the .mp3 file.
+
+        Returns:
+            (Track): The Track object created from the .mp3 file.
+
+        Raises:
+            None
         """
         audio: ID3 = ID3(file_path)
 
@@ -67,6 +76,15 @@ class FLACMetadataExtractor(MetadataExtractor):
         """
         The inherited abstract method which has been defined for .flac files.
         Creates and returns a Track object.
+
+        Arguments:
+            file_path (Path): The file path to the .flac file.
+
+        Returns:
+            (Track): The Track object created from the .flac file.
+
+        Raises:
+            None
         """
         audio: FLAC = FLAC(file_path)
 
@@ -101,6 +119,15 @@ class WAVMetadataExtractor(MetadataExtractor):
         """
         The inherited abstract method which has been defined for .wav files.
         Creates and returns a Track object.
+
+        Arguments:
+            file_path (Path): The file path to the .wav file.
+
+        Returns:
+            (Track): The Track object created from the .wav file.
+
+        Raises:
+            None
         """
         audio: WAVE = WAVE(file_path)
 
@@ -138,6 +165,15 @@ class MetadataFactory:
         """
         Factory Method which returns the concrete implementation.
         Given a file extension, return an object of the corresponding type.
+
+        Arguments:
+            audio_format (AudioFormat): The file audio type to create for.
+
+        Returns:
+            (MetadataExtractor): The concrete implementation extractor desired.
+
+        Raises:
+            (ValueError): If the desired file type is unsupported.
         """
         if audio_format == AudioFormat.MP3:
             return MP3MetadataExtractor()
