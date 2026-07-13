@@ -28,7 +28,7 @@ class AudioFormat(str, Enum):
             (AudioFormat): The associated, parsed AudioFormat.
 
         Raises:
-            ValueError: The file type extension isn't supported in AudioFormat.
+            (ValueError): If the file type isn't supported in AudioFormat.
         """
         suffix = suffix.lower()
 
@@ -135,7 +135,7 @@ class Track:
             (str): A string of the normalized date formatted to 'YYYY-MM-DD'.
 
         Raises:
-            ValueError: If the inputted string is of no valid format.
+            (ValueError): If the inputted string is of no valid format.
         """
         date = Track._validate_date_parts(date)
 
