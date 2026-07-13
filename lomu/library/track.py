@@ -24,6 +24,9 @@ class AudioFormat(str, Enum):
             cls (AudioFormat): The AudioFormat class passed by @classmethod.
             suffix (str): The file type extension to parse through.
 
+        Returns:
+            (AudioFormat): The associated, parsed AudioFormat.
+
         Raises:
             ValueError: The file type extension isn't supported in AudioFormat.
         """
