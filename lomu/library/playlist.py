@@ -1,9 +1,3 @@
-# will be mutable
-# store collection of track objects
-# need metadata about the playlist itself
-# a unique identifier for the playlist
-
-
 from .track import Track, AudioFormat
 from uuid import UUID, uuid4
 
@@ -14,6 +8,8 @@ class Playlist:
         self._name: str = name
         self._description: str = description
         self._tracks: list[Track] = []
+        # track_count    (computed below)
+        # total_duration (computed below)
 
     # immutable properties
     @property
@@ -83,12 +79,79 @@ class Playlist:
         return sum(track.duration for track in self._tracks)
 
     # mutation methods
-    # add_track(track: Track) -> None
-    # remove_track(track: Track) -> None
-    # remove_at(index: int) -> None
-    # clear_playlist(track: Track) -> None
-    # get_track_count() -> int
-    # get_total_duration() -> float
+    def add_track(self, track: Track) -> None:
+        """
+        Method to add a Track object to the playlist.
+
+        Arguments:
+            track (Track): The Track object to add to the playlist.
+
+        Returns:
+            None
+
+        Raises:
+            (ValueError): If the object being added is not of Track type.
+        """
+        if track in self._tracks:
+            raise ValueError("That track already exists in the playlist.")
+        if isinstance(track, Track):
+            self._tracks.append(track)
+        else:
+            raise ValueError("Must add a Track object to the playlist.")
+
+    def remove_track(self, track: Track) -> None:
+        """
+        Method to remove a specific Track object from the playlist.
+
+        Arguments:
+            track (Track): The Track object to remove from the playlist.
+
+        Returns:
+            None
+
+        Raises:
+            (ValueError): If the Track being removed cannot be found.
+        """
+        try:
+            self._tracks.remove(track)
+        except ValueError:
+            raise ValueError("Could not find track to remove.")
+
+    def remove_at(self, index: int) -> None:
+        """
+        Method to remove a Track from the playlist using its index.
+
+        Arguments:
+            index (int): Index of the Track object to remove from the playlist.
+
+        Returns:
+            None
+
+        Raises:
+            (ValueError): If the index is out of bounds for the playlist.
+        """
+        try:
+            self._tracks.pop(index)
+        except IndexError:
+            raise ValueError(f"Index {index} is out of bounds for playlist")
+
+    def clear_playlist(self) -> None:
+        """
+        Method to clear all Track objects from the playlist.
+
+        Arguments:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            
+        """
+        try:
+            self._tracks.clear()
+        except:
+            raise ValueError("Could not clear the playlist.")
 
     # utility methods
     def __iter__(self):
