@@ -4,4 +4,5 @@ from pathlib import Path
 import os
 
 
-# tests here
+def test_metadatafactory_creates_mp3_extractor():
+    pass
