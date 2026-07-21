@@ -56,6 +56,8 @@ def nonempty_playlist(test_track_1, test_track_2) -> Playlist:
 
     return playlist
 
+# =========================================================================== #
+
 
 # === TEST CASES ============================================================ #
 
@@ -166,3 +168,5 @@ class TestPlaylistIteration:
             assert isinstance(track, Track)
             tracks_iterated += 1
         assert nonempty_playlist.track_count == tracks_iterated
+
+# =========================================================================== #
