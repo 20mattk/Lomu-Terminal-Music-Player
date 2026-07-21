@@ -128,12 +128,12 @@ class Playlist:
             None
 
         Raises:
-            (ValueError): If the index is out of bounds for the playlist.
+            (IndexError): If the index is out of bounds for the playlist.
         """
         try:
             self._tracks.pop(index)
         except IndexError:
-            raise ValueError(f"Index {index} is out of bounds for playlist")
+            raise IndexError(f"Index {index} is out of bounds for playlist")
 
     def clear_playlist(self) -> None:
         """
