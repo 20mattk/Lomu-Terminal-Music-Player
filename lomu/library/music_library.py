@@ -23,8 +23,26 @@ class MusicLibrary:
         """Return seconds duration of all tracks in this playlist."""
         return sum(track.duration for track in self._tracks)
 
+    @property
+    def playlist_count(self) -> int:
+        """Return the number of playlists in this library."""
+        return len(self._playlists)
+
+    # mutable properties
+
+
     # library mutation methods
     def load_tracks_from_home_dir(self) -> list[Track]:
+        """
+        Load all files from the library's home directory into Track objects.
+        Store them in the object's track list.
+
+        Arguments:
+            None
+
+        Returns:
+            all_track (list[Track]): The populated list of tracks.
+        """
         all_file_paths: list[Path] = self.scan_home_dir()
         all_tracks: list[Track] = []
 
@@ -32,7 +50,7 @@ class MusicLibrary:
             try:
                 all_tracks.append(load_track(file_path))
             except Exception as e:
-                print(e)
+                pass  # how to properly continue if file is of bad type?
 
         return all_tracks
 
@@ -42,6 +60,7 @@ class MusicLibrary:
 
     # library utility methods
     def scan_home_dir(self) -> list[Path]:
+        """Returns a list of all files in self._home_dir"""
         return [
             file_path
             for file_path in self._home_dir.rglob("*")
