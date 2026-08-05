@@ -7,10 +7,16 @@ from pathlib import Path
 class MusicLibrary:
     def __init__(self, home_dir: Path):
         self._home_dir: Path = home_dir
-        self._tracks: list[Track] = self.load_tracks_from_home_dir()
+        self._tracks: list[Track] = []
         self._playlists: list[Playlist] = []
         # track_count    (computed bleow)
         # total_duration (computed below)
+
+    # immutable properties
+    @property
+    def home_dir(self) -> Path:
+        """Return the Path of the home directory."""
+        return self._home_dir
 
     # computed properties
     @property
@@ -28,11 +34,8 @@ class MusicLibrary:
         """Return the number of playlists in this library."""
         return len(self._playlists)
 
-    # mutable properties
-
-
     # library mutation methods
-    def load_tracks_from_home_dir(self) -> list[Track]:
+    def populate_library(self) -> list[Track]:
         """
         Load all files from the library's home directory into Track objects.
         Store them in the object's track list.
@@ -41,31 +44,64 @@ class MusicLibrary:
             None
 
         Returns:
-            all_track (list[Track]): The populated list of tracks.
+            None
+
+        Raises:
+            None
         """
         all_file_paths: list[Path] = self.scan_home_dir()
-        all_tracks: list[Track] = []
 
         for file_path in all_file_paths:
             try:
-                all_tracks.append(load_track(file_path))
+                self._tracks.append(load_track(file_path))
+            except ValueError as v:
+                print(f"Skipping {file_path}. Invalid format. {v}")
             except Exception as e:
-                pass  # how to properly continue if file is of bad type?
+                print(f"Skipping {file_path}. Unexpected loading error. {e}")
 
-        return all_tracks
+    def clear_library(self) -> None:
+        """
+        Clears all tracks and playlists from the library.
 
-    # remove_track
-    # remove_at
-    # clear_music_library
+        Arguments:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            None
+        """
+        self._tracks.clear()
+        self._playlists.clear()
 
     # library utility methods
     def scan_home_dir(self) -> list[Path]:
-        """Returns a list of all files in self._home_dir"""
-        return [
-            file_path
-            for file_path in self._home_dir.rglob("*")
-            if file_path.is_file()
-        ]
+        """
+        Returns a list of all files in self._home_dir.
+
+        Arguments:
+            None
+
+        Returns:
+            (list[Path]): A list of all audio file file paths.
+
+        Raises:
+            (PermissionError): If the user isn't able to access the directory.
+            (Exception): A generic error to catch any other issues.
+        """
+        try:
+            return [
+                file_path
+                for file_path in self._home_dir.rglob("*")
+                if file_path.is_file()
+            ]
+        except PermissionError as p:
+            print(f"Access denied for {self._home_dir}. {p}")
+            raise PermissionError(f"Access denied for {self._home_dir}") from e
+        except Exception as e:
+            print(f"Error in trying to scan the directory {self._home_dir}")
+            raise
 
     def __iter__(self):
         """Iterate over all tracks in self._tracks."""
@@ -74,3 +110,4 @@ class MusicLibrary:
     # playlist mutation methods
     # create_playlist
     # delete_playlist
+    # clear_playlist
