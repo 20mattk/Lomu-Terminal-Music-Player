@@ -5,39 +5,29 @@ from uuid import UUID, uuid4
 class Playlist:
     def __init__(self, name: str, description: str = "") -> None:
         self._id: UUID = uuid4()
-        self._name: str = name
-        self._description: str = description
+        self.name: str = name
+        self.description: str = description
         self._tracks: list[Track] = []
-        # track_count    (computed below)
-        # total_duration (computed below)
+        # track_count: int      (computed below)
+        # total_duration: float (computed below)
 
     # immutable properties
     @property
     def id(self) -> UUID:
-        """Return the unique ID of this playlist."""
         return self._id
+
+    @property
+    def tracks(self) -> list[Track]:
+        return list(self._tracks)
 
     # mutable properties
     @property
     def name(self) -> str:
-        """Return the name of the playlist."""
         return self._name
 
     @name.setter
     def name(self, value: str) -> None:
-        """
-        Setter for the playlist name. Must follow naming rules.
-
-        Arguments:
-            value (str): The value to name the playlist.
-
-        Returns:
-            None
-
-        Raises:
-            (ValueError): If the playlist name is empty.
-            (ValueError): If the playlist name is beyond 20 characters long.
-        """
+        """Name cannot be empty or exceed 20 characters."""
         if not value or len(value) == 0:
             raise ValueError("Playlist name cannot be empty.")
         if len(value) > 20:
@@ -46,25 +36,13 @@ class Playlist:
 
     @property
     def description(self) -> str:
-        """Return the description of the playlist."""
         return self._description
 
     @description.setter
     def description(self, value: str) -> None:
-        """
-        Setter for the playlist description. Must follow naming rules.
-
-        Arguments:
-            value (str): The value to give the playlist description.
-
-        Returns:
-            None
-
-        Raises:
-            (ValueError): If the playlist description is over 50 characters.
-        """
+        """Description cannot exceed 50 characters."""
         if len(value) > 50:
-            raise ValueError("Playlist name cannot exceed 50 characters.")
+            raise ValueError("Playlist description cannot exceed 50 characters.")
         self._description = value
 
     # computed properties
@@ -91,13 +69,13 @@ class Playlist:
 
         Raises:
             (ValueError): If the object being added is not of Track type.
+            (ValueError): If the Track object already exists in the playlist.
         """
+        if not isinstance(track, Track):
+            raise ValueError("Must add a Track object to the playlist.")
         if track in self._tracks:
             raise ValueError("That track already exists in the playlist.")
-        if isinstance(track, Track):
-            self._tracks.append(track)
-        else:
-            raise ValueError("Must add a Track object to the playlist.")
+        self._tracks.append(track)
 
     def remove_track(self, track: Track) -> None:
         """
@@ -146,14 +124,13 @@ class Playlist:
             None
 
         Raises:
-            
+            (ValueError): If something goes wrong with trying to clear.
         """
         try:
             self._tracks.clear()
-        except:
+        except Exception:
             raise ValueError("Could not clear the playlist.")
 
     # utility methods
     def __iter__(self):
-        """Iterate over all tracks in self._tracks."""
         return iter(self._tracks)
