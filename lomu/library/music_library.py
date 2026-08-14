@@ -18,6 +18,16 @@ class MusicLibrary:
         """Return the Path of the home directory."""
         return self._home_dir
 
+    @property
+    def tracks(self) -> list[Track]:
+        """Return the list of Track objects in the library."""
+        return list(self._tracks)
+
+    @property
+    def playlists(self) -> list[Playlist]:
+        """Return the list of all Playlist objects in the library."""
+        return list(self._playlists)
+
     # computed properties
     @property
     def track_count(self) -> int:
@@ -108,6 +118,14 @@ class MusicLibrary:
         return iter(self._tracks)
 
     # playlist mutation methods
-    # create_playlist
+    def create_playlist(self, name: str, description: str = "") -> None:
+        try:
+            playlist: Playlist = Playlist(name, description)
+        except ValueError as v:
+            print(f"Unable to create the playlist: {v}.")
+            return
+
+        self._playlists.append(playlist)
+
     # delete_playlist
     # clear_playlist
