@@ -127,5 +127,27 @@ class MusicLibrary:
 
         self._playlists.append(playlist)
 
-    # delete_playlist
+    def delete_playlist(self, playlist_id: UUID) -> None:
+        """
+        Delete a playlist from the music library, using its ID.
+
+        Arguments:
+            playlist_id (UUID): The ID of the playlist to delete.
+
+        Returns:
+            None
+
+        Raises:
+            (ValueError): If the playlist to delete cannot be found.
+        """
+        idx_to_del: int = next(
+            i for i, p in enumerate(self._playlists) if p.id == playlist_id,
+            None
+        )
+
+        if idx_to_del is None:
+            raise ValueError(f"Playlist ({playlist_id}) is not found.")
+
+        self._playlist.pop(idx_to_del)
+
     # clear_playlist
