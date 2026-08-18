@@ -154,7 +154,7 @@ class MusicLibrary:
             (ValueError): If the playlist to delete cannot be found.
         """
         idx_to_del: int = next(
-            i for i, p in enumerate(self._playlists) if p.id == playlist_id,
+            (i for i, p in enumerate(self._playlists) if p.id == playlist_id),
             None
         )
 
