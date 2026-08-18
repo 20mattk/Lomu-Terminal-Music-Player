@@ -162,5 +162,3 @@ class MusicLibrary:
             raise ValueError(f"Playlist ({playlist_id}) is not found.")
 
         self._playlist.pop(idx_to_del)
-
-    # clear_playlist
