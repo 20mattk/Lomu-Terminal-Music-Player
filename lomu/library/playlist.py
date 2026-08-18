@@ -3,6 +3,8 @@ from uuid import UUID, uuid4
 
 
 class Playlist:
+    max_tracks: int = 200
+
     def __init__(self, name: str, description: str = "") -> None:
         self._id: UUID = uuid4()
         self.name: str = name
@@ -71,6 +73,8 @@ class Playlist:
             (ValueError): If the object being added is not of Track type.
             (ValueError): If the Track object already exists in the playlist.
         """
+        if self.track_count == Playlist.max_tracks:
+            raise ValueError(f"Cannot add more than {Playlist.max_tracks} tracks.")
         if not isinstance(track, Track):
             raise ValueError("Must add a Track object to the playlist.")
         if track in self._tracks:
