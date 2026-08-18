@@ -119,6 +119,19 @@ class MusicLibrary:
 
     # playlist mutation methods
     def create_playlist(self, name: str, description: str = "") -> None:
+        """
+        Create a playlist and add it to the library.
+
+        Arguments:
+            name (str): The name to give to the playlist.
+            description (str): The description to give to the playlist.
+
+        Returns:
+            None
+
+        Raises:
+            None
+        """
         try:
             playlist: Playlist = Playlist(name, description)
         except ValueError as v:
