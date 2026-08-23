@@ -7,63 +7,57 @@ from datetime import datetime
 # === TEST CASES ============================================================ #
 
 class TestAudioFormat:
-    def test_audioformat_valid_mp3_suffix_lowercase(self):
-        """Test: AudioFormat can create a valid MP3 type from .mp3"""
-        assert AudioFormat.from_suffix(".mp3") == AudioFormat.MP3
+    @pytest.mark.parametrize("input_ext, expected_format, error", [
+        # Success Test 1: Create valid MP3 type from .mp3
+        (".mp3", AudioFormat.MP3, None),
 
-    def test_audioformat_valid_mp3_suffix_no_dot_lowercase(self):
-        """Test: AudioFormat can create a valid MP3 type from mp3"""
-        assert AudioFormat.from_suffix("mp3") == AudioFormat.MP3
+        # Success Test 2: Create valid MP3 type from mp3
+        ("mp3", AudioFormat.MP3, None),
 
-    def test_audioformat_valid_mp3_suffix_uppercase(self):
-        """Test: AudioFormat can create a valid MP3 type from .MP3"""
-        assert AudioFormat.from_suffix(".MP3") == AudioFormat.MP3
+        # Success Test 3: Create valid MP3 type from .MP3
+        (".MP3", AudioFormat.MP3, None),
 
-    def test_audioformat_valid_mp3_suffix_no_dot_uppercase(self):
-        """Test: AudioFormat can create a valid MP3 type from MP3"""
-        assert AudioFormat.from_suffix("MP3") == AudioFormat.MP3
+        # Success Test 4: Create valid MP3 type from MP3
+        ("MP3", AudioFormat.MP3, None),
 
-    def test_audioformat_valid_flac_suffix_lowercase(self):
-        """Test: AudioFormat can create a valid FLAC type from .flac"""
-        assert AudioFormat.from_suffix(".flac") == AudioFormat.FLAC
+        # Success Test 5: Create valid FLAC type from .flac
+        (".flac", AudioFormat.FLAC, None),
 
-    def test_audioformat_valid_flac_suffix_no_dot_lowercase(self):
-        """Test: AudioFormat can create a valid FLAC type from flac"""
-        assert AudioFormat.from_suffix("flac") == AudioFormat.FLAC
+        # Success Test 6: Create valid FLAC type from flac
+        ("flac", AudioFormat.FLAC, None),
 
-    def test_audioformat_valid_flac_suffix_uppercase(self):
-        """Test: AudioFormat can create a valid FLAC type from .FLAC"""
-        assert AudioFormat.from_suffix(".FLAC") == AudioFormat.FLAC
+        # Success Test 7: Create valid FLAC type from .FLAC
+        (".FLAC", AudioFormat.FLAC, None),
 
-    def test_audioformat_valid_flac_suffix_no_dot_uppercase(self):
-        """Test: AudioFormat can create a valid FLAC type from FLAC"""
-        assert AudioFormat.from_suffix("FLAC") == AudioFormat.FLAC
+        # Success Test 8: Create valid FLAC type from FLAC
+        ("FLAC", AudioFormat.FLAC, None),
 
-    def test_audioformat_valid_wav_suffix_lowercase(self):
-        """Test: AudioFormat can create a valid WAV type from .wav"""
-        assert AudioFormat.from_suffix(".wav") == AudioFormat.WAV
+        # Success Test 9: Create valid WAV type from .wav
+        (".wav", AudioFormat.WAV, None),
 
-    def test_audioformat_valid_wav_suffix_no_dot_lowercase(self):
-        """Test: AudioFormat can create a valid WAV type from wav"""
-        assert AudioFormat.from_suffix("wav") == AudioFormat.WAV
+        # Success Test 10: Create valid WAV type from wav
+        ("wav", AudioFormat.WAV, None),
 
-    def test_audioformat_valid_wav_suffix_uppercase(self):
-        """Test: AudioFormat can create a valid WAV type from .WAV"""
-        assert AudioFormat.from_suffix(".WAV") == AudioFormat.WAV
+        # Success Test 11: Create valid WAV type from .WAV
+        (".WAV", AudioFormat.WAV, None),
 
-    def test_audioformat_valid_wav_suffix_no_dot_uppercase(self):
-        """Test: AudioFormat can create a valid WAV type from WAV"""
-        assert AudioFormat.from_suffix("WAV") == AudioFormat.WAV
+        # Success Test 12: Create valid WAV type from WAV
+        ("WAV", AudioFormat.WAV, None),
 
-    def test_audioformat_invalid_audio_suffx(self):
-        """Test: AudioFormat is unable to create from an unsupported type"""
-        with pytest.raises(ValueError):
-            AudioFormat.from_suffix(".ogg")
+        # Failure Test 1: ValueError raised from .ogg input
+        (".ogg", None, ValueError),
 
-    def test_audioformat_empty_string_invalid_audio_suffix(self):
-        """Test: AudioFormat is unable to create from an empty type"""
-        with pytest.raises(ValueError):
-            AudioFormat.from_suffix("")
+        # Failure Test 2: ValueError raised from blank input
+        ("", None, ValueError)
+    ])
+
+    def test_audioformat_handle_input(self, input_ext, expected_format, error):
+        """Test: Tests various extension inputs to create an AudioFormat"""
+        if error is None:
+            assert AudioFormat.from_suffix(input_ext) == expected_format
+        else:
+            with pytest.raises(ValueError):
+                AudioFormat.from_suffix(input_ext)
 
 
 class TestTrack:
@@ -76,49 +70,59 @@ class TestTrack:
             "album": "Album",
             "release_date": "2023-05-19",
             "track_number": 12,
-            "duration": 305.2
+            "duration": 305.2,
+            "album_art": b"\x89PNG\r\n\x1a\nAlbumArtImage"
         }
         defaults.update(kwargs)
         return Track(**defaults)
+
+    @pytest.mark.parametrize("input_date, normalized_date, error", [
+        # Success Test 1: Valid Release Date from YYYYMMDD
+        ("2023-05-19", "2023-05-19", None),
+
+        # Success Test 2: Valid Release Date from YYYY
+        ("2007", "2007-01-01", None),
+
+        # Success Test 3: Valid Release Date from YYMMDD
+        ("08-09-20", "2008-09-20", None),
+
+        # Success Test 4: Valid Release Date from Invalid YYYYMMDD
+        ("2009-18-20", "2009-01-01", None),
+
+        # Success Test 5: Valid Release Date from Invalid YYMMDD
+        ("09-18-78", "2009-01-01", None),
+
+        # Failure Test 1: Invalid release date raises an error when parsed
+        ("February, 18, 1987", None, ValueError)
+    ])
+
+    def test_track_handles_dates(self, input_date, normalized_date, error):
+        """Test: Various date str inputs produce valid date normalizations"""
+        if error is None:
+            track: Track = self.make_track(release_date=input_date)
+            assert track.release_date == normalized_date
+        else:
+            with pytest.raises(ValueError):
+                track: Track = self.make_track(release_date=input_date)
 
     def test_track_sets_audio_format(self):
         """Test: Track sets the correct AudioFormat"""
         track: Track = self.make_track()
         assert track.audio_format == AudioFormat.MP3
 
-    def test_track_sets_valid_release_date_YYYYMMDD(self):
-        """Test: Track sets a valid release date from YYYYMMDD"""
-        track: Track = self.make_track()
-        assert track.release_date == "2023-05-19"
-
-    def test_track_sets_valid_release_date_YYYY(self):
-        """Test: Track sets a valid release date from YYYY"""
-        track: Track = self.make_track(release_date="2007")
-        assert track.release_date == "2007-01-01"
-
-    def test_track_sets_valid_release_date_YYMMDD(self):
-        """Test: Track sets a valid relese date from YYMMDD"""
-        track: Track = self.make_track(release_date="08-09-20")
-        assert track.release_date == "2008-09-20"
-
-    def test_track_adjusts_to_valid_release_date_YYYYMMDD(self):
-        """Test: Track adjusts to valid release date from invalid YYYYMMDD"""
-        track: Track = self.make_track(release_date="2009-18-20")
-        assert track.release_date == "2009-01-01"
-
-    def test_track_adjusts_to_valid_release_date_YYMMDD(self):
-        """Test: Track adjusts to valid release date from invalid YYMMDD"""
-        track: Track = self.make_track(release_date="09-18-78")
-        assert track.release_date == "2009-01-01"
-
     def test_track_invalid_track_number(self):
         """Test: Track raises ValueError for invalid track number parsed"""
         with pytest.raises(ValueError):
             track: Track = self.make_track(track_number=0)
 
-    def test_track_invalid_release_date(self):
-        """Test: Track raises ValueError for invalid release date parsed"""
-        with pytest.raises(ValueError):
-            track: Track = self.make_track(release_date="February 18, 1987")
+    def test_track_creates_valid_album_art(self):
+        """Test: Track creates valid album art when supplied with data"""
+        track: Track = self.make_track()
+        assert track.album_art == b"\x89PNG\r\n\x1a\nAlbumArtImage"
+
+    def test_track_creates_without_album_art(self):
+        """Test: Track still creates without album art supplied"""
+        track: Track = self.make_track(album_art=None)
+        assert track.album_art == None
 
 # =========================================================================== #
