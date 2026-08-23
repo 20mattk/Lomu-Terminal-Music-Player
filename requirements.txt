@@ -1,3 +1,5 @@
+gitdb==4.0.12
+GitPython==3.1.56
 iniconfig==2.3.0
 keyboard==0.13.5
 mutagen==1.48.1
@@ -168,3 +170,5 @@ pyobjc-framework-Vision==12.2.1
 pyobjc-framework-WebKit==12.2.1
 pytest==9.1.1
 python-mpv==1.0.8
+python-vlc==3.0.21203
+smmap==5.0.3
