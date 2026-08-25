@@ -35,6 +35,20 @@ def test_track_2() -> Track:
 
 
 @pytest.fixture
+def track_list_generator() -> list[Track]:
+    """Fixture to create a list of length = n"""
+    return [Track(
+        file_path=Path(f"test_track_{n}.wav"),
+        title=f"Test Track {n} Title",
+        artist=f"Test Track {n} Artist",
+        album=f"Test Track {n} Album",
+        release_date="2003-08-09",
+        track_number=5,
+        duration=180.000
+    ) for n in range(Playlist.max_tracks)]
+
+
+@pytest.fixture
 def empty_playlist() -> Playlist:
     """Fixture to create a basic Playlist object"""
     return Playlist(
@@ -83,6 +97,11 @@ class TestPlaylistName:
         with pytest.raises(TypeError):
             Playlist()
 
+    def test_playlist_name_too_long_raises_error(self):
+        """Test: Playlist initializaed with too long name raises ValueError"""
+        with pytest.raises(ValueError):
+            Playlist("This name is far too long, oh wow it's still going...")
+
 
 class TestPlaylistDescription:
     def test_default_description(self):
@@ -126,6 +145,22 @@ class TestPlaylistTrackManagement:
             with pytest.raises(ValueError):
                 empty_playlist.add_track(not_a_track)
 
+    def test_playlist_add_to_limit(self, empty_playlist, track_list_generator):
+        """Test: Playlist successfully adds up to track limit"""
+        for i in range(Playlist.max_tracks):
+            empty_playlist.add_track(track_list_generator[i])
+
+        assert empty_playlist.track_count == Playlist.max_tracks
+
+    def test_playlist_add_above_limit(
+        self, empty_playlist, track_list_generator, test_track_1):
+        """Test: Playlist successfully adds up to track limit"""
+        for i in range(Playlist.max_tracks):
+            empty_playlist.add_track(track_list_generator[i])
+
+        with pytest.raises(ValueError):
+            empty_playlist.add_track(test_track_1)
+
     def test_playlist_remove_track(self, nonempty_playlist, test_track_1):
         """Test: Removing a Track object is done successfully"""
         initial_track_count: int = nonempty_playlist.track_count
@@ -158,6 +193,12 @@ class TestPlaylistTrackManagement:
         nonempty_playlist.clear_playlist()
         assert nonempty_playlist.track_count == 0
         assert nonempty_playlist.total_duration == 0.0
+
+    def test_empty_playlist_clear(self, empty_playlist):
+        """Test: Clearing an empty playlist rightfully does nothing"""
+        empty_playlist.clear_playlist()
+        assert empty_playlist.track_count == 0
+        assert empty_playlist.total_duration == 0.0
 
 
 class TestPlaylistIteration:
