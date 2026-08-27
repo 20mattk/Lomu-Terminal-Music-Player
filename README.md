@@ -30,10 +30,16 @@
     - I learned some basics of unit/integration testing using `pytest`
     - Also learning `pytest` fixtures
     - There was a lot more I could've done with mocking
-- Dataclasses & Slots
+- Dataclasses (Slots & Frozen)
     - Implemented in `lomu/library/track.py`
-    - This is basically like a struct
-    - A class purely for holding data, and using slots for memory optimization
+    - This is basically like a struct - purely for holding data
+    - Slots reduce memory footprint by eliminating the dynamic dictionary
+    - Frozen for object ummutability (safer to freeze an audio track's data)
+- Named Constants (`Enum`)
+    - Implemented in `lomu/library/track.py`
+    - Learned how to create safe, type-checked constants
+    - To ensure type safety from string values
+    - Was used for my file audio types
 - General Terms
     - Resourced Managed Player Client (RPMC)
     - Music Player Daemon (MPD): Server that plays music; clients connect to it
