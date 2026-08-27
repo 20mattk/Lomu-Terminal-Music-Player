@@ -1,3 +1,9 @@
+# === UPDATES =============================================================== #
+# ON HOLD FOR DEVELOPMENT
+# WILL REVIST ONCE MUSIC LIBRARY AND TRACKS FUNCTIONALITY IS COMPLETE
+# THIS MIGHT BECOME A CHILD CLASS OF MUSIC LIBRARY CLASS
+
+
 import pytest
 from pathlib import Path
 from lomu.library import Playlist, Track, AudioFormat

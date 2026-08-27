@@ -1,3 +1,9 @@
+# === UPDATES =============================================================== #
+# ON HOLD FOR DEVELOPMENT
+# WILL REVIST ONCE MUSIC LIBRARY AND TRACKS FUNCTIONALITY IS COMPLETE
+# THIS MIGHT BECOME A CHILD CLASS OF MUSIC LIBRARY CLASS
+
+
 from .track import Track, AudioFormat
 from uuid import UUID, uuid4
 
