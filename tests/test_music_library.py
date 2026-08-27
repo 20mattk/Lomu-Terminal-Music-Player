@@ -1,6 +1,3 @@
-# Group 1: Initialization & Computed Properties
-#    1. Check initial value of track_count
-
 import pytest
 from pathlib import Path
 from lomu.library import MusicLibrary
@@ -34,10 +31,15 @@ class TestLibraryInitialization:
 
 
 class TestFileScanning:
-    pass
-    # scan_home_dir gets a list of valid Path objects
-    # scan_home_dir rightfully gets denied permission to scan a directory
-    # scan_home_dir rightfully raises an error when scanning goes wrong?
+    def test_scanning_returns_paths(self):
+        """Test: scan_home_dir returns a list of Path objects"""
+        file_paths: list[Path] = MusicLibrary(Path("./Audio/")).scan_home_dir()
+        assert all(isinstance(file, Path) for file in file_paths)
+
+    def test_scanning_empty_path(self):
+        """Test: scan_home_dir returns nothing when it doesn't find audio"""
+        file_paths: list[Path] = MusicLibrary(Path("~")).scan_home_dir()
+        assert len(file_paths) == 0
 
 
 class TestLibraryPopulation:
