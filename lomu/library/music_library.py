@@ -1,4 +1,7 @@
-from .playlist import Playlist
+# NOTICE: Playlist development is on hold for now
+
+
+# from .playlist import Playlist
 from .track import Track, AudioFormat
 from .metadata import load_track
 from pathlib import Path
@@ -8,7 +11,7 @@ class MusicLibrary:
     def __init__(self, home_dir: Path):
         self._home_dir: Path = home_dir
         self._tracks: list[Track] = []
-        self._playlists: list[Playlist] = []
+        # self._playlists: list[Playlist] = []
         # track_count    (computed bleow)
         # total_duration (computed below)
 
@@ -23,10 +26,10 @@ class MusicLibrary:
         """Return the list of Track objects in the library."""
         return list(self._tracks)
 
-    @property
-    def playlists(self) -> list[Playlist]:
-        """Return the list of all Playlist objects in the library."""
-        return list(self._playlists)
+    # @property
+    # def playlists(self) -> list[Playlist]:
+    #     """Return the list of all Playlist objects in the library."""
+    #     return list(self._playlists)
 
     # computed properties
     @property
@@ -39,10 +42,10 @@ class MusicLibrary:
         """Return seconds duration of all tracks in this playlist."""
         return sum(track.duration for track in self._tracks)
 
-    @property
-    def playlist_count(self) -> int:
-        """Return the number of playlists in this library."""
-        return len(self._playlists)
+    # @property
+    # def playlist_count(self) -> int:
+    #     """Return the number of playlists in this library."""
+    #     return len(self._playlists)
 
     # library mutation methods
     def populate_library(self) -> list[Track]:
@@ -117,48 +120,48 @@ class MusicLibrary:
         """Iterate over all tracks in self._tracks."""
         return iter(self._tracks)
 
-    # playlist mutation methods
-    def create_playlist(self, name: str, description: str = "") -> None:
-        """
-        Create a playlist and add it to the library.
+    # # playlist mutation methods
+    # def create_playlist(self, name: str, description: str = "") -> None:
+    #     """
+    #     Create a playlist and add it to the library.
 
-        Arguments:
-            name (str): The name to give to the playlist.
-            description (str): The description to give to the playlist.
+    #     Arguments:
+    #         name (str): The name to give to the playlist.
+    #         description (str): The description to give to the playlist.
 
-        Returns:
-            None
+    #     Returns:
+    #         None
 
-        Raises:
-            None
-        """
-        try:
-            playlist: Playlist = Playlist(name, description)
-        except ValueError as v:
-            print(f"Unable to create the playlist: {v}.")
-            return
+    #     Raises:
+    #         None
+    #     """
+    #     try:
+    #         playlist: Playlist = Playlist(name, description)
+    #     except ValueError as v:
+    #         print(f"Unable to create the playlist: {v}.")
+    #         return
 
-        self._playlists.append(playlist)
+    #     self._playlists.append(playlist)
 
-    def delete_playlist(self, playlist_id: UUID) -> None:
-        """
-        Delete a playlist from the music library, using its ID.
+    # def delete_playlist(self, playlist_id: UUID) -> None:
+    #     """
+    #     Delete a playlist from the music library, using its ID.
 
-        Arguments:
-            playlist_id (UUID): The ID of the playlist to delete.
+    #     Arguments:
+    #         playlist_id (UUID): The ID of the playlist to delete.
 
-        Returns:
-            None
+    #     Returns:
+    #         None
 
-        Raises:
-            (ValueError): If the playlist to delete cannot be found.
-        """
-        idx_to_del: int = next(
-            (i for i, p in enumerate(self._playlists) if p.id == playlist_id),
-            None
-        )
+    #     Raises:
+    #         (ValueError): If the playlist to delete cannot be found.
+    #     """
+    #     idx_to_del: int = next(
+    #         (i for i, p in enumerate(self._playlists) if p.id == playlist_id),
+    #         None
+    #     )
 
-        if idx_to_del is None:
-            raise ValueError(f"Playlist ({playlist_id}) is not found.")
+    #     if idx_to_del is None:
+    #         raise ValueError(f"Playlist ({playlist_id}) is not found.")
 
-        self._playlist.pop(idx_to_del)
+    #     self._playlist.pop(idx_to_del)
