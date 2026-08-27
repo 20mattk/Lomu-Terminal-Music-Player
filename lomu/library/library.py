@@ -7,7 +7,7 @@ from .metadata import load_track
 from pathlib import Path
 
 
-class MusicLibrary:
+class Library:
     def __init__(self, home_dir: Path):
         self._home_dir: Path = home_dir
         self._tracks: list[Track] = []
