@@ -86,7 +86,7 @@ class MusicLibrary:
             None
         """
         self._tracks.clear()
-        self._playlists.clear()
+        # self._playlists.clear()
 
     # library utility methods
     def scan_home_dir(self) -> list[Path]:
