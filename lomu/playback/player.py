@@ -70,6 +70,8 @@ class Player:
         self._is_playing = False
         self._current_track = None
 
+        # NOTE: might need to clear the media list from media list player here?
+
     def skip(self) -> None:
         pass
 
