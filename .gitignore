@@ -8,3 +8,4 @@ project_notes.txt
 *.flac
 *.wav
 testing.py
+.vscode
