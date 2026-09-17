@@ -15,7 +15,7 @@ class Queue:
         if not isinstance(track, Track):
             raise TypeError("Cannot add an object not of type Track.")
         if self._queue.is_full():
-            raise Full(f"Queue is at maximum Track capacity. ({MAX_SIZE})")
+            raise Full(f"Queue is at maximum Track capacity. ({self.MAX_SIZE})")
         self._queue.put(track, block=True)
 
     def next(self, timeout: int = 5) -> Track:
