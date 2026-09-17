@@ -1,6 +1,3 @@
-# NOTICE: Playlist development is on hold for now
-
-
 # from .playlist import Playlist
 from .track import Track, AudioFormat
 from .metadata import load_track
