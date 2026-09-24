@@ -45,7 +45,7 @@ class Library:
     #     return len(self._playlists)
 
     # library mutation methods
-    def populate_library(self) -> list[Track]:
+    def populate_library(self) -> list[Track] | None:
         """
         Load all files from the library's home directory into Track objects.
         Store them in the object's track list.
@@ -108,10 +108,10 @@ class Library:
             ]
         except PermissionError as p:
             print(f"Access denied for {self._home_dir}. {p}")
-            raise PermissionError(f"Access denied for {self._home_dir}") from e
+            raise PermissionError(f"Access denied for {self._home_dir}")
         except Exception as e:
             print(f"Error in trying to scan the directory {self._home_dir}")
-            raise
+            raise e
 
     def __iter__(self):
         """Iterate over all tracks in self._tracks."""
