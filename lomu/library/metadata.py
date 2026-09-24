@@ -1,7 +1,6 @@
 from .track import Track, AudioFormat
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Optional
 from mutagen.id3 import ID3, APIC
 from mutagen.flac import FLAC
 from mutagen.wave import WAVE
@@ -49,7 +48,7 @@ class MP3MetadataExtractor(MetadataExtractor):
         )
         track_number: int = int(audio.get("TRCK", "1").text[0].split("/")[0])
         duration: float = File(file_path).info.length
-        album_art: Optional[bytes] = None
+        album_art: bytes | None = None
         for frame in audio.values():
             if isinstance(frame, APIC):
                 album_art = frame.data
@@ -94,7 +93,7 @@ class FLACMetadataExtractor(MetadataExtractor):
         release_date: str = audio.get("date", ["0001"])[0]
         track_number: int = int(audio.get("number", ["1"])[0])
         duration: float = File(file_path).info.length
-        album_art: Optional[bytes] = (
+        album_art: bytes | None = (
             audio.pictures[0].data if audio.pictures else None
         )
 
@@ -137,6 +136,7 @@ class WAVMetadataExtractor(MetadataExtractor):
         release_date: str = audio.get("TDRC", ["0001"])[0]
         track_number: str = int(audio.get("TRCK", ["1"])[0].split("/")[0])
         duration: float = File(file_path).info.length
+        album_art: bytes | None = None
         for frame in audio.values():
             if isinstance(frame, APIC):
                 album_art = frame.data
@@ -182,7 +182,7 @@ class MetadataFactory:
         if audio_format == AudioFormat.WAV:
             return WAVMetadataExtractor()
         else:
-            raise ValueError(f"Unsupported file type: {extension}")
+            raise ValueError(f"Unsupported file type: {audio_format}")
 
 
 def load_track(file_path: Path) -> Track:
