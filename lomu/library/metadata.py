@@ -185,7 +185,7 @@ class MetadataFactory:
             raise ValueError(f"Unsupported file type: {audio_format}")
 
 
-def load_track(file_path: Path) -> Track:
+def load_track(file_path: Path | str) -> Track:
     """
     The function to expose to the rest of the application.
     This acts as the access point to the Factory Method.
@@ -197,9 +197,13 @@ def load_track(file_path: Path) -> Track:
         (Track): The file's extracted metadata as a Track object.
 
     Raises:
-        None
+        (FileNotFoundError): If the passed file cannot be found.
     """
-    file_path: Path = Path(file_path)  # to catch if a string was passed
+    file_path: Path = Path(file_path)
+
+    if not path.is_file():
+        raise FileNotFoundError(file_path)
+
     audio_format: AudioFormat = AudioFormat(file_path.suffix.lower())
 
     factory: MetadataFactory = MetadataFactory()
