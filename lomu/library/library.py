@@ -45,43 +45,29 @@ class Library:
     #     return len(self._playlists)
 
     # library mutation methods
-    def populate_library(self) -> list[Track] | None:
+    def populate_library(self) -> None:
         """
         Load all files from the library's home directory into Track objects.
         Store them in the object's track list.
-
-        Arguments:
-            None
-
-        Returns:
-            None
-
-        Raises:
-            None
         """
-        all_file_paths: list[Path] = self.scan_home_dir()
+        loaded_tracks: list[Track] = []
 
-        for file_path in all_file_paths:
+        for file_path in self.scan_home_dir():
             try:
-                self._tracks.append(load_track(file_path))
+                track: Track = load_track(file_path)
+            except FileNotFoundError as f:
+                print(f"Skipping {file_path}. Could not be found. {f}")
+                continue
             except ValueError as v:
                 print(f"Skipping {file_path}. Invalid format. {v}")
-            except Exception as e:
-                print(f"Skipping {file_path}. Unexpected loading error. {e}")
+                continue
+
+            loaded_tracks.append(track)
+
+        self._tracks = loaded_tracks
 
     def clear_library(self) -> None:
-        """
-        Clears all tracks and playlists from the library.
-
-        Arguments:
-            None
-
-        Returns:
-            None
-
-        Raises:
-            None
-        """
+        """Clears all tracks and playlists from the library."""
         self._tracks.clear()
         # self._playlists.clear()
 
@@ -100,18 +86,18 @@ class Library:
             (PermissionError): If the user isn't able to access the directory.
             (Exception): A generic error to catch any other issues.
         """
-        try:
-            return [
-                file_path
-                for file_path in self._home_dir.rglob("*")
-                if file_path.is_file()
-            ]
-        except PermissionError as p:
-            print(f"Access denied for {self._home_dir}. {p}")
-            raise PermissionError(f"Access denied for {self._home_dir}")
-        except Exception as e:
-            print(f"Error in trying to scan the directory {self._home_dir}")
-            raise e
+        if not self._home_dir.is_dir():
+            raise NotADirectoryError(self._home_dir)
+
+        supported_formats: set[str] = {
+            audio_format.value for audio_format in AudioFormat
+        }
+
+        return [
+            file_path for file_path in self._home_dir.rglob("*")
+            if file_path.is_file()
+            and file_path.suffix.lower() in supported_formats
+        ]
 
     def __iter__(self):
         """Iterate over all tracks in self._tracks."""
