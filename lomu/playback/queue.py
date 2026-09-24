@@ -3,7 +3,7 @@ from queue import Queue, Full, Empty
 import random
 
 
-class Queue:
+class LibraryQueue:
     MAX_SIZE: int = 5_000
 
     def __init__(self, library: Library):
@@ -14,7 +14,7 @@ class Queue:
         """Add a single Track to the queue for processing."""
         if not isinstance(track, Track):
             raise TypeError("Cannot add an object not of type Track.")
-        if self._queue.is_full():
+        if self.is_full():
             raise Full(f"Queue is at maximum Track capacity. ({self.MAX_SIZE})")
         self._queue.put(track, block=True)
 
