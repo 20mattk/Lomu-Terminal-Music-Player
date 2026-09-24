@@ -72,7 +72,7 @@ class Track:
     release_date: str
     track_number: int
     duration: float
-    album_art: Optional[bytes] = None
+    album_art: bytes | None = None
     audio_format: AudioFormat = field(init=False)
 
     def __post_init__(self):
