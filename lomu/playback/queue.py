@@ -7,7 +7,6 @@ class LibraryQueue:
     MAX_SIZE: int = 5_000
 
     def __init__(self, library: Library):
-        self._library: Library = library
         self._queue: Queue = Queue(maxsize=self.MAX_SIZE)
 
     def add(self, track: Track) -> None:
