@@ -204,7 +204,8 @@ def load_track(file_path: Path | str) -> Track:
     if not file_path.is_file():
         raise FileNotFoundError(file_path)
 
-    audio_format: AudioFormat = AudioFormat(file_path.suffix.lower())
+    # audio_format: AudioFormat = AudioFormat(file_path.suffix.lower())
+    audio_format: AudioFormat = AudioFormat.from_suffix(file_path.suffix)
 
     factory: MetadataFactory = MetadataFactory()
     extractor: MetadataExtractor = factory.create_extractor(audio_format)
