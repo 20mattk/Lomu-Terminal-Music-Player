@@ -1,39 +1,69 @@
 from ..library import Library, Track
-from queue import Queue, Full, Empty
-import random
 
 
-class LibraryQueue:
-    MAX_SIZE: int = 5_000
-
-    def __init__(self, library: Library):
-        self._queue: Queue = Queue(maxsize=self.MAX_SIZE)
-
+class PlaybackQueue:
+    def __init__(self):
+        # copy tracks into internal track list
+        # if internal track list is not empty: set curr idx to 0
+        # else: set curr idx to nothing
+        # tracks
+        # current index
+        # lock
+        # repeat mode
+        # shuffle mode
+        pass
+    
+    # immutable properties
+    @property
+    def tracks(self) -> list[Track] | list[None]:
+        """Return a copy of the internal Track object list."""
+        # acquire lock
+        # return internal tracks list
+        # release lock
+        pass
+    
+    @property
+    def current_track(self) -> Track | None:
+        """Return the Track object at the current index."""
+        # acquire lock
+        # return internal current track
+        # release lock
+        pass
+    
+    # utility methods
     def add(self, track: Track) -> None:
-        """Add a single Track to the queue for processing."""
-        if not isinstance(track, Track):
-            raise TypeError("Cannot add an object not of type Track.")
-        if self.is_full():
-            raise Full(f"Queue is at maximum Track capacity. ({self.MAX_SIZE})")
-        self._queue.put(track, block=True)
+        """Add a Track object to the playback queue."""
+        # acquire lock
+        # append track
+        # release lock
+        pass
 
-    def next(self, timeout: int = 5) -> Track:
-        """Retrieves the next Track in the queue. Blocks if empty."""
-        try:
-            return self._queue.get(block=True, timeout=timeout)
-        except Empty:
-            raise TimeoutError("The queue is empty.")
-        except:
-            raise Exception("Something went wrong.")
-        
-    def is_empty(self) -> bool:
-        """Returns True/False if the queue is empty or not."""
-        return self._queue.empty()
-    
-    def is_full(self) -> bool:
-        """Returns True/False if the queue is full or not."""
-        return self._queue.full()
-    
-    def length(self) -> int:
-        """Returns the length of the queue in number of Track objects."""
-        return self._queue.qsize()
+    def clear(self) -> None:
+        """Clear all Track objects from the playback queue."""
+        # acquire lock
+        # clear tracks
+        # current index = None
+        # release lock
+        pass
+
+    def next(self) -> None:
+        """Skip to the next Track object in the playback queue."""
+        # acquire lock
+        # if queue is empty: return None
+        # if repeat_mode is ONE: return current track
+
+        # if current_index is None: current_index = 0
+        # elif another track exists: current_index += 1
+        # elif repeat_mode is ALL: current_index = 0
+        # else: current_index = None, return None
+        # return tracks[current_index]
+        # release lock
+        pass
+
+    def previous(self) -> None:
+        """Return to the previous Track object in the playback queue."""
+        # acquire lock
+        # calculate previous index
+        # return selected track
+        # release lock
+        pass
