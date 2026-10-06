@@ -134,7 +134,7 @@ class WAVMetadataExtractor(MetadataExtractor):
         artist: str = audio.get("TPE1", ["Unknown Artist"])[0]
         album: str = audio.get("TALB", ["Unknown Album"])[0]
         release_date: str = audio.get("TDRC", ["0001"])[0]
-        track_number: str = int(audio.get("TRCK", ["1"])[0].split("/")[0])
+        track_number: int = int(audio.get("TRCK", ["1"])[0].split("/")[0])
         duration: float = File(file_path).info.length
         album_art: bytes | None = None
         for frame in audio.values():
@@ -199,9 +199,9 @@ def load_track(file_path: Path | str) -> Track:
     Raises:
         (FileNotFoundError): If the passed file cannot be found.
     """
-    file_path: Path = Path(file_path)
+    file_path = Path(file_path)
 
-    if not path.is_file():
+    if not file_path.is_file():
         raise FileNotFoundError(file_path)
 
     audio_format: AudioFormat = AudioFormat(file_path.suffix.lower())
