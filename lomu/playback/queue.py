@@ -1,17 +1,21 @@
+from enum import Enum, auto
 from ..library import Library, Track
+# from threading import Lock
+
+
+class RepeatMode(Enum):
+    OFF = auto()
+    ALL = auto()
+    ONE = auto()
 
 
 class PlaybackQueue:
-    def __init__(self):
-        # copy tracks into internal track list
-        # if internal track list is not empty: set curr idx to 0
-        # else: set curr idx to nothing
-        # tracks
-        # current index
-        # lock
-        # repeat mode
-        # shuffle mode
-        pass
+    def __init__(self, tracks: list[Track]):
+        self._tracks: list[Track] = list(tracks)
+        self._current_index: int | None = 0 if self._tracks else None
+        self._repeat_mode: RepeatMode = RepeatMode.OFF
+        self._shuffle_enabled: bool = False
+        # self._lock = None
     
     # immutable properties
     @property
