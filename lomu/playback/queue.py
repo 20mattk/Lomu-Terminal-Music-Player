@@ -35,15 +35,15 @@ class PlaybackQueue:
         return self._queue[self._current_index]
         # release lock
     
-    # @property
-    # def repeat_mode(self) -> RepeatMode:
-    #     """Return the currently-set repeat mode of the queue."""
-    #     return self._repeat_mode
+    @property
+    def repeat_mode(self) -> RepeatMode:
+        """Return the currently-set repeat mode of the queue."""
+        return self._repeat_mode
 
-    # @property
-    # def shuffle_enabled(self) -> bool:
-    #     """Return the currently-set shuffle toggle of the queue."""
-    #     return self._shuffle_enabled
+    @property
+    def shuffle_enabled(self) -> bool:
+        """Return the currently-set shuffle toggle of the queue."""
+        return self._shuffle_enabled
     
     # === utility methods === #
     def add(self, track: Track) -> None:
@@ -115,13 +115,13 @@ class PlaybackQueue:
 
         # release lock
     
-    # def set_repeat_mode(self, mode: RepeatMode) -> None:
-    #     """Set the repeat mode of the queue."""
-    #     # acquire lock
-    #     if not isinstance(mode, RepeatMode):
-    #         raise TypeError("Repeat mode must be of RepeatMode.")
+    def set_repeat_mode(self, mode: RepeatMode) -> None:
+        """Set the repeat mode of the queue."""
+        # acquire lock
+        if not isinstance(mode, RepeatMode):
+            raise TypeError("Repeat mode must be of RepeatMode.")
 
-    #     self._repeat_mode = mode
-    #     # release lock
+        self._repeat_mode = mode
+        # release lock
 
     # add some stuff for shuffling
