@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from ..library import Library, Track
+from ..library import Track
 # from threading import Lock
 
 
@@ -11,63 +11,91 @@ class RepeatMode(Enum):
 
 class PlaybackQueue:
     def __init__(self, tracks: list[Track]):
-        self._tracks: list[Track] = list(tracks)
-        self._current_index: int | None = 0 if self._tracks else None
+        self._queue: list[Track] = list(tracks)
+        self._current_index: int | None = 0 if self._queue else None
         self._repeat_mode: RepeatMode = RepeatMode.OFF
         self._shuffle_enabled: bool = False
         # self._lock = None
     
     # immutable properties
     @property
-    def tracks(self) -> list[Track] | list[None]:
+    def queue(self) -> list[Track] | list[None]:
         """Return a copy of the internal Track object list."""
         # acquire lock
-        # return internal tracks list
+        return list(self._queue)
         # release lock
-        pass
     
     @property
     def current_track(self) -> Track | None:
         """Return the Track object at the current index."""
         # acquire lock
-        # return internal current track
+        if self._current_index is None:
+            return None
+
+        return self._queue[self._current_index]
         # release lock
-        pass
     
     # utility methods
     def add(self, track: Track) -> None:
         """Add a Track object to the playback queue."""
         # acquire lock
-        # append track
+        self._queue.append(track)
         # release lock
-        pass
 
     def clear(self) -> None:
         """Clear all Track objects from the playback queue."""
         # acquire lock
-        # clear tracks
-        # current index = None
+        self._queue.clear()
+        self._current_index = None
         # release lock
-        pass
 
-    def next(self) -> None:
+    def next(self) -> Track | None:
         """Skip to the next Track object in the playback queue."""
         # acquire lock
-        # if queue is empty: return None
-        # if repeat_mode is ONE: return current track
 
-        # if current_index is None: current_index = 0
-        # elif another track exists: current_index += 1
-        # elif repeat_mode is ALL: current_index = 0
-        # else: current_index = None, return None
-        # return tracks[current_index]
+        if not self._queue:
+            return None
+
+        if self._repeat_mode == RepeatMode.ONE:
+            return self.current_track
+
+        if self._current_index is None:
+            self._current_index = 0
+        elif self._current_index < len(self._queue) - 1:
+            self._current_index += 1
+        elif (self._current_index == len(self._queue) - 1
+              and self._repeat_mode == RepeatMode.ALL):
+            self._current_index = 0
+        else:
+            self._current_index = None
+            return None
+
+        return self._queue[self._current_index]
+
         # release lock
-        pass
 
-    def previous(self) -> None:
+    def previous(self) -> Track | None:
         """Return to the previous Track object in the playback queue."""
         # acquire lock
-        # calculate previous index
-        # return selected track
+
+        if not self._queue:
+            return None
+
+        if self._repeat_mode == RepeatMode.ONE:
+            return self.current_track
+
+        if self._current_index is None:
+            return None
+        elif self._current_index > 0:
+            self._current_index -= 1
+        elif self._repeat_mode == RepeatMode.ALL:
+            self._current_index = len(self._queue) - 1
+        else:
+            self._current_index = None
+            return None
+
+        return self._queue[self._current_index]
+
         # release lock
-        pass
+    
+    # add some stuff for shuffling
