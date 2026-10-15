@@ -1,3 +1,21 @@
+# TODO
+# These are following changes to be made to playback architecture (ideas)
+# I could simplify these modulue: queue = queue + sequence + controller
+
+# playback/
+# ├── __init__.py
+# ├── queue.py        # Active session: eligible tracks and membership changes
+# ├── sequence.py     # Current order: library, album, playlist, sorted, shuffled
+# ├── player.py       # VLC adapter: load, play, pause, stop; report playback events
+# ├── controller.py   # Coordinates queue/sequence and implements next/previous
+# └── events.py       # Event types shared across playback components
+
+# queue.py: hold references or stable track IDs; don’t duplicate Track objects
+# sequence.py: takes session’s eligible tracks and produces an ordered view. Rebuilding the order should preserve the current track when possible
+# controller.py: owns the current position and handles play/pause/next/previous/etc. asking the sequence for the appropriate track
+# events.py: notifications like track started, track ended, and playback error
+
+
 from enum import Enum, auto
 from ..library import Track
 # from threading import Lock
@@ -125,3 +143,7 @@ class PlaybackQueue:
         # release lock
 
     # add some stuff for shuffling
+    # store a shuffled sequence of track indeces (not re-shuffled tracks)
+    # track current position in that sequence (_current_track is for _queue)
+    # what happens when shuffle is toggled during playback?
+    # how will repeat all wrap around with shuffling?
