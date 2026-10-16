@@ -1,19 +1,13 @@
 # TODO
-# These are following changes to be made to playback architecture (ideas)
-# I could simplify these modulue: queue = queue + sequence + controller
-
-# playback/
-# ├── __init__.py
-# ├── queue.py        # Active session: eligible tracks and membership changes
-# ├── sequence.py     # Current order: library, album, playlist, sorted, shuffled
-# ├── player.py       # VLC adapter: load, play, pause, stop; report playback events
-# ├── controller.py   # Coordinates queue/sequence and implements next/previous
-# └── events.py       # Event types shared across playback components
-
-# queue.py: hold references or stable track IDs; don’t duplicate Track objects
-# sequence.py: takes session’s eligible tracks and produces an ordered view. Rebuilding the order should preserve the current track when possible
-# controller.py: owns the current position and handles play/pause/next/previous/etc. asking the sequence for the appropriate track
-# events.py: notifications like track started, track ended, and playback error
+# I will re-structure the playback module according to the below:
+# lomu/
+# └── playback/
+#     ├── __init__.py
+#     ├── queue.py       # Track scope/eligibility for current playback session
+#     ├── sequence.py    # Ordering and shuffling of Tracks in the Queue
+#     ├── controller.py  # Track playback state (play/next, etc, send to Player)
+#     ├── player.py      # Audio playback with VLC and event reporting
+#     └── events.py      # Defines events to be reported by the Player
 
 
 from enum import Enum, auto
