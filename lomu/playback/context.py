@@ -17,10 +17,24 @@
 # 4. player.py
 # 5. controller.py
 
-# context.py
-# > add/remove/clear eligible tracks
-# > test empty and duplicate behavior
-
 # ============================================================================ #
 
 
+from ..library import Track
+from dataclasses import dataclass
+from typing import Iterable
+
+
+@dataclass(frozen=True, slots=True)
+class PlaybackContext:
+    """A data contianer for the scope of Tracks to be given to the queue."""
+
+    tracks: tuple[Track, ...]
+    source: str | None = None
+
+    @classmethod
+    def from_tracks(
+        cls, tracks: Iterable[Track], source: str | None = None
+    ) -> PlaybackContext:
+        """Create a context of Tracks from an iterable of Tracks."""
+        return cls(tracks=tuple(tracks), source=source)
