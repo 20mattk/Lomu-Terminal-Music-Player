@@ -18,3 +18,5 @@
 # 5. controller.py
 
 # ============================================================================ #
+
+# PLAYING A TRACK REMOVES IT FROM THE QUEUE
