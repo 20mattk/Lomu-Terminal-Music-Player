@@ -17,6 +17,16 @@
 # 4. player.py
 # 5. controller.py
 
+
+# Queue vs. Controller
+# 1. History of Played Tracks:  Queue
+# 2. Current Playing Track:     Controller
+# 3. Queue of Upcoming Tracks:  Queue
+# 4. Add, Remove, Clear Tracks: Queue
+# 5. Shuffling:                 Queue
+# 6. Going to Next Track:       Controller
+# 7. Going to Previous Track:   Controller
+
 # ============================================================================ #
 
 
@@ -26,59 +36,68 @@ from random import shuffle
 
 
 class PlaybackQueue:
-    def __init__(self, tracks: list[Track]) -> None:
-        self._queue: list[Track] = list(tracks)
-        self._position: int = 0
+    def __init__(self, tracks: list[Track] | None = None) -> None:
+        self._tracks: list[Track] = (list(tracks) if tracks is not None else [])
+        self._history: list[Track] = []
 
     # === immutable properties === #
     @property
-    def queue(self) -> list[Track]:
-        return self._queue
+    def tracks(self) -> tuple[Track, ...]:
+        return tuple(self._tracks)
 
     @property
-    def position(self) -> int:
-        return self._position
+    def history(self) -> tuple[Track, ...]:
+        return tuple(self._history)
 
     # === computed properties === #
     @property
-    def length(self) -> int:
-        return len(self._queue)
+    def queue_is_empty(self) -> bool:
+        return not self._tracks
 
     @property
-    def is_empty(self) -> bool:
-        return not self._queue
+    def history_length(self) -> int:
+        return len(self._history)
+
+    @property
+    def history_is_empty(self) -> bool:
+        return not self._history
 
     # === utility methods === #
-    def get_track(self) -> Track:
-        if self.is_empty:
-            raise ValueError("The queue is empty.")
+    def append_one(self, track: Track) -> None:
+        self._tracks.append(track)
 
-        return self._queue[self._position]
+    def append_many(self, tracks: list[Track]) -> None:
+        raise NotImplementedError
 
-    def add(self, track: Track, index: int | None = None) -> None:
-        if not isinstance(track, Track):
-            raise ValueError("You may only add Track objects to the queue.")
-
-        if not index:
-            self._queue.append(track)
-        elif 0 <= index < len(self._queue):
-            self.queue.insert(index, track)
+    def insert_at(self, track: Track, index: int) -> None:
+        if 0 <= index <= len(self._tracks):
+            self._tracks.insert(index, track)
         else:
-            raise IndexError("Insertion index is out of bounds.")
+            raise IndexError(f"Index {index} is out of bounds.")
 
-    def remove(self, index: int) -> None:
-        if index == self._position:
-            raise ValueError("Cannot remove the current Track from the queue.")
+    def remove_one(self, index: int) -> None:
+        raise NotImplementedError
 
-        if not index or index < 0 or index >= len(self._queue):
-            raise IndexError("Removal index is invalid.")
+    def clear_all(self) -> None:
+        raise NotImplementedError
 
-        self._queue.pop(index)
+    def pop_next(self) -> None:
+        raise NotImplementedError
 
-    def clear(self) -> None:
-        self._queue.clear()
-        self._position = 0
+    def peek_next(self) -> None:
+        raise NotImplementedError
 
     def shuffle(self) -> None:
-        shuffle(self._queue)
-        self._position = 0
+        raise NotImplementedError
+
+    # === dunder methods === #
+    def __len__(self) -> int:
+        return len(self._tracks)
+
+    def __iter__(self):
+        """Iterate over the upcoming Tracks."""
+        return iter(self._tracks)
+
+    def __contains__(self) -> None:
+        """Check if a Track is in the queue."""
+        raise NotImplementedError
