@@ -52,10 +52,28 @@ class PlaybackQueue:
 
     # === utility methods === #
     def append_one(self, track: Track) -> None:
+        """
+        Append one Track to the end of the queue.
+
+        Arguments:
+            track (Track): The track to append to the queue.
+        
+        Raises:
+            (TypeError): If the track supplied is not a Track instance.
+        """
         self._validate_track(track)
         self._tracks.append(track)
 
     def append_many(self, tracks: Iterable[Track]) -> None:
+        """
+        Append many Track instances to the end of the queue.
+
+        Arguments:
+            tracks (Iterable[Track]): The Track instances to add.
+        
+        Raises:
+            (TypeError): If the track supplied is not a Track instance.
+        """
         new_tracks: list[Track] = list(tracks)
 
         for track in new_tracks:
@@ -64,30 +82,85 @@ class PlaybackQueue:
         self._tracks.extend(new_tracks)
 
     def insert_one_at(self, index: int, track: Track) -> None:
+        """
+        Insert one Track instance at a certain location in the queue.
+
+        Arguments:
+            index (int): The index location to insert at.
+            track (Track): The Track instance to insert.
+        
+        Raises:
+            (TypeError): If the track supplied is not a Track instance.
+            (TypeError): If the index supplied is not an integer.
+            (IndexError): If the index supplied is out of bounds.
+        """
         self._validate_track(track)
         self._validate_index(index, include_end=True)
         self._tracks.insert(index, track)
 
     def remove_one_at(self, index: int) -> Track:
+        """
+        Remove one Track instance at a certain location in the queue.
+
+        Arguments:
+            index (int): The index location to remove at.
+        
+        Returns:
+            (Track): The Track instance which was removed from the queue.
+        
+        Raises:
+            (TypeError): If the index supplied is not an integer.
+            (IndexError): If the index supplied is out of bounds.
+        """
         self._validate_index(index)
         return self._tracks.pop(index)
 
     def clear_all(self) -> None:
+        """Clear all Tracks from the queue."""
         self._tracks.clear()
 
     def pop_next(self) -> Track:
+        """
+        Pop the next-up Track from the top of the queue.
+
+        Returns:
+            (Track): The Track popped from the queue.
+        
+        Raises:
+            (IndexError): If the queue is empty.
+        """
         if not self._tracks:
             raise IndexError("The queue is empty.")
 
         return self._tracks.pop(0)
 
     def peek_next(self) -> Track:
+        """
+        Peek the next-up Track that is at the top of the queue.
+
+        Returns:
+            (Track): The Track next up in the queue.
+        
+        Raises:
+            (IndexError): If the queue is empty.
+        """
         if not self._tracks:
             raise IndexError("The queue is empty.")
 
         return self._tracks[0]
 
     def move_track(self, old_index: int, new_index: int) -> None:
+        """
+        Move a Track from one spot to another in the queue.
+
+        Arguments:
+            old_index (int): The index of the Track to move.
+            new_index (int): The index to move the Track to.
+        
+        Raises:
+            (TypeError): If either index supplied is not an integer.
+            (IndexError): If the either index supplied is out of bounds.
+        """
         self._validate_index(old_index)
         self._validate_index(new_index)
 
@@ -98,15 +171,37 @@ class PlaybackQueue:
         self._tracks.insert(new_index, track)
 
     def shuffle(self) -> None:
+        """Shuffle the order of the queue."""
         # future: shuffle tracks in current "context" (album, playlist, etc.)
         random_shuffle(self._tracks)
 
     # === helper methods === #
-    def _validate_track(self, track: Track) -> None:
+    def _validate_track(self, track: object) -> None:
+        """
+        Validate that the object is a Track instance.
+
+        Arguments:
+            track (object): The object to validate.
+        
+        Raises:
+            (TypeError): The supplied object is not an instance of Track.
+        """
         if not isinstance(track, Track):
             raise TypeError(f"Not a valid Track instance: {track}.")
 
     def _validate_index(self, index: int, include_end: bool = False) -> None:
+        """
+        Validate that an index is an integer and in bounds of the queue.
+
+        Arguments:
+            index (int): The index to validate.
+            include_end (bool): If True, upper bound is length of the queue. If
+                                False, upper bound is length of the queue - 1.
+        
+        Raises:
+            (TypeError): If the index is not an integer.
+            (IndexError): If the index is not within valid bounds.
+        """
         if not isinstance(index, int) or isinstance(index, bool):
             raise TypeError(f"Index must be an integer, not {type(index)}.")
 
@@ -119,6 +214,7 @@ class PlaybackQueue:
 
     # === dunder methods === #
     def __len__(self) -> int:
+        """Return the number of Tracks in the queue."""
         return len(self._tracks)
 
     def __iter__(self) -> Iterator[Track]:
