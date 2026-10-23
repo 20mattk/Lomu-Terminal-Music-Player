@@ -44,3 +44,25 @@
     - Resourced Managed Player Client (RPMC)
     - Music Player Daemon (MPD): Server that plays music; clients connect to it
     - Music Player Client (MPC): CLI client for controlling MPD
+- `abc`, `ABC`, `@abstractmethod`
+    - Abstract Base Class is one that cannot be instantiated from
+    - `class ClassName(ABC): ...`
+    - It can only be inhereted from, because it defines an interface
+    - `@abstractmethod` is one that MUST be defined by an implementation class
+    - The child class will throw an error if `@abstractmethod` is not defined
+- `from typing import Optional`
+    - Like Optionals in Swift
+    - A value can be of a certain type, or `None`
+    - `var: Optional[int] = None`
+- `@classmethod`
+    - Turns that method into one that receives the CLASS
+    - Instead of the instance
+- `@staticmethod`
+    - A static method belongs to the class itself, not to any isntance
+    - However, it does need an instance or class state
+    - A pure utility function that takes input and returns output
+- `__init__.py`
+    - Tells Python "this directory is a package"
+    - Docstrings and versioning
+    - Can also export key classes/functions for easier importing elsewhere
+    - Enables `from lomu import Player` over `from lomu.player import Player`
