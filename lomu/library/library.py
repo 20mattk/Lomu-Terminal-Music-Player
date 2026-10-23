@@ -2,11 +2,12 @@
 from .track import Track, AudioFormat
 from .metadata import load_track
 from pathlib import Path
+from collections.abc import Iterator
 
 
 class Library:
-    def __init__(self, home_dir: Path):
-        self._home_dir: Path = home_dir
+    def __init__(self, home_dir: Path | str) -> None:
+        self._home_dir: Path = Path(home_dir)
         self._tracks: list[Track] = []
 
     # === immutable properties === #
@@ -17,15 +18,10 @@ class Library:
 
     @property
     def tracks(self) -> tuple[Track, ...]:
-        """Return all Tracks in the library as an ummutable Tuple."""
+        """Return an immutable Tuple of the library's tracks."""
         return tuple(self._tracks)
 
     # === computed properties === #
-    @property
-    def track_count(self) -> int:
-        """Return the number of tracks in this library."""
-        return len(self._tracks)
-
     @property
     def total_duration(self) -> float:
         """Return seconds duration of all tracks in this playlist."""
@@ -36,6 +32,7 @@ class Library:
         """
         Load all files from the library's home directory into Track objects.
         Store them in the object's track list.
+        A rescan will fully replace the existing library.
         """
         loaded_tracks: list[Track] = []
 
@@ -43,10 +40,8 @@ class Library:
             try:
                 track: Track = load_track(file_path)
             except FileNotFoundError as f:
-                print(f"Skipping {file_path}. Could not be found. {f}")
                 continue
             except ValueError as v:
-                print(f"Skipping {file_path}. Invalid format. {v}")
                 continue
 
             loaded_tracks.append(track)
@@ -54,10 +49,9 @@ class Library:
         self._tracks = loaded_tracks
 
     def clear_library(self) -> None:
-        """Clears all tracks and playlists from the library."""
+        """Clears all tracks from the library."""
         self._tracks.clear()
 
-    # library utility methods
     def scan_home_dir(self) -> list[Path]:
         """
         Returns a list of all files in self._home_dir.
@@ -66,11 +60,18 @@ class Library:
             (list[Path]): A list of all audio file file paths.
 
         Raises:
-            (PermissionError): If the user isn't able to access the directory.
-            (Exception): A generic error to catch any other issues.
+            (FileNotFoundError): If supplied path is not reachable.
+            (NotADirectoryError): If supplied path isn't a directory.
         """
+        if not self._home_dir.exists():
+            raise FileNotFoundError(
+                f"Library path does not exist: {self._home_dir}"
+            )
+
         if not self._home_dir.is_dir():
-            raise NotADirectoryError(self._home_dir)
+            raise NotADirectoryError(
+                f"Library path is not a directory: {self._home_dir}"
+            )
 
         supported_formats: set[str] = {
             audio_format.value for audio_format in AudioFormat
@@ -82,6 +83,11 @@ class Library:
             and file_path.suffix.lower() in supported_formats
         ]
 
-    def __iter__(self):
+    # === dunder methods === #
+    def __len__(self) -> int:
+        """Return the number of tracks in the library."""
+        return len(self._tracks)
+
+    def __iter__(self) -> Iterator[Track]:
         """Iterate over all tracks in self._tracks."""
         return iter(self._tracks)
