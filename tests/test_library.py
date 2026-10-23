@@ -12,7 +12,7 @@ class TestLibraryInitialization:
 
     def test_initialized_track_count(self):
         """Test: Affirm a newly-initialized library has 0 tracks"""
-        assert Library(Path("/")).track_count == 0
+        assert len(Library(Path("/")))== 0
 
     def test_initialized_duration(self):
         """Test: Affirm a newly-initialized library has 0.0 duration"""
@@ -20,7 +20,7 @@ class TestLibraryInitialization:
 
     def test_initialized_track_list(self):
         """Test: Affirm a newly-initialized library has empty track list"""
-        assert Library(Path("/")).tracks == []
+        assert Library(Path("/")).tracks == tuple()
 
     def test_initialized_home_dir(self):
         """Test: Affirm a newly-initialized library has Path type home_dir"""
@@ -30,14 +30,14 @@ class TestLibraryInitialization:
 class TestFileScanning:
     def test_scanning_returns_paths(self):
         """Test: scan_home_dir returns a list of Path objects"""
-        file_paths: list[Path] = Library(
-            Path("./tests/Audio")
-        ).scan_home_dir()
+        file_paths: list[Path] = Library(Path("./tests/Audio")).scan_home_dir()
         assert all(isinstance(file, Path) for file in file_paths)
 
     def test_scanning_empty_path(self):
         """Test: scan_home_dir returns nothing when it doesn't find audio"""
-        file_paths: list[Path] = Library(Path("~")).scan_home_dir()
+        file_paths: list[Path] = Library(
+            Path(".tests//Audioless")
+        ).scan_home_dir()
         assert len(file_paths) == 0
 
 
@@ -46,7 +46,7 @@ class TestLibraryPopulation:
         """Test: Adding tracks successfully populates the library"""
         library: Library = Library(Path("./tests/Audio"))
         library.populate_library()
-        assert library.track_count > 0
+        assert len(library) > 0
 
 
 class TestLibraryCleaning:
@@ -55,14 +55,14 @@ class TestLibraryCleaning:
         library: Library = Library(Path("./tests/Audio"))
         library.populate_library()
         library.clear_library()
-        assert library.tracks == []
+        assert library.tracks == tuple()
 
     def test_library_cleans_track_count(self):
         """Test: Clearing a populated library resets track count"""
         library: Library = Library(Path("./tests/Audio"))
         library.populate_library()
         library.clear_library()
-        assert library.track_count == 0
+        assert len(library) == 0
 
     def test_library_cleans_duration(self):
         """Test: Clearing a populated library resets total duration"""
