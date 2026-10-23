@@ -1,9 +1,6 @@
-import pytest
 from pathlib import Path
 from lomu.library import Library
 
-
-# === TEST CASES ============================================================ #
 
 class TestLibraryInitialization:
     def test_library_initialization_instance(self):
@@ -36,7 +33,7 @@ class TestFileScanning:
     def test_scanning_empty_path(self):
         """Test: scan_home_dir returns nothing when it doesn't find audio"""
         file_paths: list[Path] = Library(
-            Path(".tests//Audioless")
+            Path("./tests/Audioless")
         ).scan_home_dir()
         assert len(file_paths) == 0
 
