@@ -1,6 +1,6 @@
-from .player import Player
+from .queue import PlaybackQueue
 
 
 __all__ = [
-    "Player"
+    "PlaybackQueue"
 ]
