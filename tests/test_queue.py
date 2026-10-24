@@ -6,6 +6,48 @@ from lomu.library import Track
 
 
 @pytest.fixture
+def empty_queue():
+    return PlaybackQueue()
+
+@pytest.fixture
+def populated_queue():
+    return PlaybackQueue([
+        Track(
+            file_path=Path("existing_track.mp3"),
+            title="Exiting Track",
+            artist="Exiting Artist",
+            album="Exiting Album",
+            release_date="2006",
+            track_number=11,
+            duration=149.0,
+            album_art=b"\x89PNG\r\n\x1a\nExistingAlbumArt"
+        ),
+        Track(
+            file_path=Path("ahhhh.mp3"),
+            title="AHHH",
+            artist="Person",
+            album="Albummmmm",
+            release_date="1987",
+            track_number=8,
+            duration=10.0,
+            album_art=b"\x89PNG\r\n\x1a\nUGH"
+        )
+    ])
+
+@pytest.fixture
+def track():
+    return Track(
+        file_path=Path("test_track.mp3"),
+        title="Test Track",
+        artist="Test Artist",
+        album="Test Album",
+        release_date="2001",
+        track_number=1,
+        duration=180.0,
+        album_art=b"\x89PNG\r\n\x1a\nTestAlbumArt"
+    )
+
+@pytest.fixture
 def tracks():
     return [
         Track(
@@ -47,78 +89,222 @@ class TestPlaybackQueueInitialization:
         assert isinstance(PlaybackQueue(), PlaybackQueue)
     
     def test_initialize_queue_empty_list(self):
-        """Test: Initialize queue with empty list is valid."""
+        """Test: Initialize queue with empty list."""
         queue: PlaybackQueue = PlaybackQueue([])
         assert queue.tracks == ()
         assert len(queue) == 0
 
     def test_initialize_queue_empty_tuple(self):
-        """Test: Initialize queue with empty tuple is valid."""
+        """Test: Initialize queue with empty tuple."""
         queue: PlaybackQueue = PlaybackQueue(tuple())
         assert queue.tracks == ()
         assert len(queue) == 0
 
     def test_initialize_queue_tracks_list(self, tracks):
-        """Test: Initialize queue with list of tracks is valid."""
+        """Test: Initialize queue with list of tracks."""
         queue: PlaybackQueue = PlaybackQueue(tracks)
         assert queue.tracks == tuple(tracks)
         assert len(queue) == len(tracks)
 
+    def test_initialize_queue_track_tuple(self, tracks):
+        """Test: Initialize queue with tuple of tracks."""
+        queue: PlaybackQueue = PlaybackQueue(tuple(tracks))
+        assert queue.tracks == tuple(tracks)
+        assert len(queue) == len(tracks)
+
+    def test_initialize_queue_duplicate_tracks_allowed(self, tracks):
+        """Test: Initialize queue with duplicate tracks is safe."""
+        tracks.append(tracks[0])
+        queue: PlaybackQueue = PlaybackQueue(tracks)
+        assert queue.tracks == tuple(tracks)
+        assert len(queue) == len(tracks)
+
+    def test_initialize_queue_fails_invalid_track(self, tracks):
+        """Test: Initialize queue with an invalid track raises a TypeError."""
+        tracks.append("INVALID")
+        with pytest.raises(TypeError):
+            queue: PlaybackQueue = PlaybackQueue(tracks)
+
+
+class TestPlaybackQueueAppendOne:
+    def test_append_one_valid_track_empty_queue(self, empty_queue, track):
+        """Test: Appending a valid track to an empty queue works."""
+        empty_queue.append_one(track)
+        print(empty_queue.tracks)
+        assert empty_queue.tracks == tuple([track])
+        assert len(empty_queue) == len(tuple([track]))
+
+    def test_append_one_track_populated_queue(self, populated_queue, track):
+        """Test: Appending a track to a populated queue."""
+        original_length: int = len(populated_queue)
+        populated_queue.append_one(track)
+        assert len(populated_queue) == original_length + 1
+
+    def test_append_one_adds_to_end(self, populated_queue, track):
+        """Test: Appending a track to a populated queue is at the end."""
+        populated_queue.append_one(track)
+        assert populated_queue.tracks[-1] == track
+
+    def test_append_one_same_track_multiple_times(self, empty_queue, track):
+        """Test: Able to append one track multiple times."""
+        empty_queue.append_one(track)
+        assert len(empty_queue) == 1
+        empty_queue.append_one(track)
+        assert len(empty_queue) == 2
+
+    def test_append_one_invalid_track_errors(self, empty_queue):
+        """Test: TypeError raised when invalid object appended."""
+        with pytest.raises(TypeError):
+            empty_queue.append_one("NOT_A_TRACK")
+
+    def test_append_one_invalid_keeps_queue_state(self, populated_queue):
+        """Test: Appending invalid object leaves queue unchanged."""
+        before_tracks: tuple[Track, ...] = populated_queue.tracks
+        with pytest.raises(TypeError):
+            populated_queue.append_one("NOT_A_TRACK")
+        assert populated_queue.tracks == before_tracks
+        assert len(populated_queue) == len(before_tracks)
+
+
+class TestPlaybackQueueAppendMany:
+    def test_append_many_tracks_empty_queue(self, empty_queue, tracks):
+        """Test: Append many tracks to an empty queue."""
+        empty_queue.append_many(tracks)
+        assert empty_queue.tracks == tuple(tracks)
+        assert len(empty_queue) == len(tracks)
+
+    def test_append_many_tracks_populated_queue(self, populated_queue, tracks):
+        """Test: Append many tracks to an empty queue."""
+        before_tracks: tuple[Track, ...] = populated_queue.tracks
+        populated_queue.append_many(tracks)
+        assert populated_queue.tracks == before_tracks + tuple(tracks)
+        assert len(populated_queue) == len(before_tracks) + len(tracks)
+
+    def test_append_many_empty_list_to_queue(self, populated_queue):
+        """Test: Appending empty list to populated queue doesn't change it."""
+        before_tracks: tuple[Track, ...] = populated_queue.tracks
+        populated_queue.append_many([])
+        assert populated_queue.tracks == before_tracks
+        assert len(populated_queue) == len(before_tracks)
+
+    def test_append_many_empty_tuple_to_queue(self, populated_queue):
+        """Test: Appending empty tuple to populated queue doesn't change it."""
+        before_tracks: tuple[Track, ...] = populated_queue.tracks
+        populated_queue.append_many(tuple())
+        assert populated_queue.tracks == before_tracks
+        assert len(populated_queue) == len(before_tracks)
+
+    def test_append_many_preserves_order(self, populated_queue, tracks):
+        """Test: Appending many new tracks preserves queue order."""
+        before_tracks: tuple[Track, ...] = populated_queue.tracks
+        before_tracks = before_tracks + tuple(tracks)
+        populated_queue.append_many(tracks)
+        assert populated_queue.tracks == before_tracks
+
+    def test_append_many_same_track(self, empty_queue, track):
+        """Test: Able to append many of the same track to a queue."""
+        duplicate_tracks: list[Track] = [track, track]
+        empty_queue.append_many(duplicate_tracks)
+        assert empty_queue.tracks == tuple(duplicate_tracks)
+        assert len(empty_queue) == len(duplicate_tracks)
+
+    def test_append_many_invalid_track_errors(self, empty_queue, track):
+        """Test: Append many any invalid track raises TypeError."""
+        with pytest.raises(TypeError):
+            empty_queue.append_many([track, "NOT_A_TRACK"])
+
+    def test_append_many_invalid_keeps_queue(self, populated_queue, track):
+        """Test: If invalid tracks appended, queue is not affected."""
+        before_tracks: tuple[Track, ...] = populated_queue.tracks
+        with pytest.raises(TypeError):
+            populated_queue.append_many(track, "INVALID")
+        assert populated_queue.tracks == before_tracks
+        assert len(populated_queue) == len(before_tracks)
+
+
+class TestPlaybackQueueInsertOneAt:
+    def test_insert_one_at_0_empty_queue(self, empty_queue, track):
+        """Test: Insert one track at index 0 of empty queue."""
+        empty_queue.insert_one_at(0, track)
+        assert len(empty_queue) == 1
+        assert empty_queue.tracks[0] == track
+
+    def test_insert_one_at_0_populated_queue(self, populated_queue, track):
+        """Test: Insert one track at index 0 of populated queue."""
+        before_len: int = len(populated_queue)
+        populated_queue.insert_one_at(0, track)
+        assert len(populated_queue) == before_len + 1
+        assert populated_queue.tracks[0] == track
+
+    def test_insert_one_at_mid_queue(self, populated_queue, track):
+        """Test: Insert one track at the middle of a populated queue."""
+        before_len: int = len(populated_queue)
+        populated_queue.insert_one_at(1, track)
+        assert len(populated_queue) == before_len + 1
+        assert populated_queue.tracks[1] == track
+
+    def test_insert_one_at_end_queue(self, populated_queue, track):
+        """Test: Insert one track at the end of a populated queue."""
+        before_len: int = len(populated_queue)
+        populated_queue.insert_one_at(len(populated_queue), track)
+        assert len(populated_queue) == before_len + 1
+        assert populated_queue.tracks[-1] == track
+
+    def test_insert_one_at_retains_order(self, populated_queue, track):
+        """Test: Insert one track retains existing track order."""
+        before_tracks: tuple[Track, ...] = populated_queue.tracks
+        populated_queue.insert_one_at(0, track)
+        assert populated_queue.tracks[0] == track
+        assert populated_queue.tracks[1:] == before_tracks
+
+    def test_insert_one_at_duplicate_track(self, empty_queue, track):
+        """Test: Insert one multiple times with the same track is okay."""
+        empty_queue.insert_one_at(0, track)
+        empty_queue.insert_one_at(0, track)
+        assert len(empty_queue) == 2
+        assert empty_queue.tracks[0] == track
+        assert empty_queue.tracks[1] == track
+
+    def test_insert_one_at_invalid_track(self, empty_queue):
+        """Test: TypeError raised when inserting an invalid track."""
+        with pytest.raises(TypeError):
+            empty_queue.insert_one_at(0, "GOT_YA")
+
+    def test_insert_one_at_index_negative(self, empty_queue, track):
+        """Test: IndexError raised when inserting an index of negative value."""
+        with pytest.raises(IndexError):
+            empty_queue.insert_one_at(-1, track)
+
+    def test_insert_one_at_index_too_big(self, empty_queue, track):
+        """Test: IndexError raised when inserting an index too big."""
+        with pytest.raises(IndexError):
+            empty_queue.insert_one_at(len(empty_queue) +1, track)
+
+    def test_insert_one_at_index_float(self, empty_queue, track):
+        """Test: TypeError raised when inserting an index of float type."""
+        with pytest.raises(TypeError):
+            empty_queue.insert_one_at(0.0, track)
+
+    def test_insert_one_at_index_string(self, empty_queue, track):
+        """Test: TypeError raised when inserting an index of string type."""
+        with pytest.raises(TypeError):
+            empty_queue.insert_one_at("0", track)
+
+    def test_insert_one_at_index_bool(self, empty_queue, track):
+        """Test: TypeError raised when inserting an index of bool type."""
+        with pytest.raises(TypeError):
+            empty_queue.insert_one_at(True, track)
+    
+    def test_insert_one_at_fails_queue_still_okay(self, populated_queue):
+        """Test: Insert one invalid operation leaves queue unchanged."""
+        before_tracks: tuple[Track, ...] = populated_queue.tracks
+        with pytest.raises(TypeError):
+            populated_queue.insert_one_at(0, "I_AM_A_TRACK")
+        assert len(populated_queue) == len(before_tracks)
+        assert populated_queue.tracks == before_tracks
+
 
 """
-### 1. Initialization
-
-- [x]Initialize an empty queue with no arguments.
-- [x]Initialize an empty queue with an empty list.
-- [x]Initialize an empty queue with an empty tuple.
-- [x]Initialize a pre-populated queue with a list of tracks.
-- [ ]Initialize a queue with a tuple of tracks.
-- [ ]Initialize a queue with a generator of tracks.
-- [ ]Verify the initial track order is preserved.
-- [ ]Verify duplicate tracks are allowed during initialization.
-- [ ]Raise `TypeError` if the initial iterable contains an invalid object.
-- [ ]Verify initialization fails without creating a partially populated queue when a track is invalid.
-
-### 2. `append_one()`
-
-- [ ]Append a valid track to an empty queue.
-- [ ]Append a valid track to a populated queue.
-- [ ]Verify the track is added to the end.
-- [ ]Verify the queue length increases by one.
-- [ ]Append the same track multiple times.
-- [ ]Raise `TypeError` when appending an invalid object.
-- [ ]Verify the queue remains unchanged after an invalid append.
-
-### 3. `append_many()`
-
-- [ ]Append multiple tracks to an empty queue.
-- [ ]Append multiple tracks to a populated queue.
-- [ ]Append an empty list without changing the queue.
-- [ ]Append an empty tuple without changing the queue.
-- [ ]Append tracks from a generator.
-- [ ]Verify the order of appended tracks is preserved.
-- [ ]Verify the queue length increases by the number of appended tracks.
-- [ ]Append multiple occurrences of the same track.
-- [ ]Raise `TypeError` if any supplied object is not a `Track`.
-- [ ]Verify no tracks are appended if validation fails, even when the invalid object appears after valid tracks in the iterable.
-
-### 4. `insert_one_at()`
-
-- [ ]Insert a track into an empty queue at index `0`.
-- [ ]Insert a track at the beginning of a populated queue.
-- [ ]Insert a track in the middle of a queue.
-- [ ]Insert a track at the end using index `len(queue)`.
-- [ ]Verify the existing tracks retain their relative order.
-- [ ]Verify the queue length increases by one.
-- [ ]Insert a duplicate track.
-- [ ]Raise `TypeError` when the supplied track is invalid.
-- [ ]Raise `TypeError` when the index is a float.
-- [ ]Raise `TypeError` when the index is a string.
-- [ ]Raise `TypeError` when the index is `True` or `False`.
-- [ ]Raise `IndexError` for a negative index.
-- [ ]Raise `IndexError` when the index exceeds `len(queue)`.
-- [ ]Verify the queue remains unchanged after an invalid insertion.
-
 ### 5. `remove_one_at()`
 
 - [ ]Remove the first track.
