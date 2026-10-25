@@ -31,6 +31,16 @@ def populated_queue():
             track_number=8,
             duration=10.0,
             album_art=b"\x89PNG\r\n\x1a\nUGH"
+        ),
+        Track(
+            file_path=Path("uhm.mp3"),
+            title="Sure",
+            artist="Yep",
+            album="Kinda",
+            release_date="1964",
+            track_number=3,
+            duration=104.0,
+            album_art=b"\x89PNG\r\n\x1a\nMaybe"
         )
     ])
 
@@ -304,27 +314,102 @@ class TestPlaybackQueueInsertOneAt:
         assert populated_queue.tracks == before_tracks
 
 
+class TestPlaybackQueueRemoveOneAt:
+    def test_remove_one_at_queue_start(self, populated_queue):
+        """Test: Remove one at the first track in the queue."""
+        before_length: int = len(populated_queue)
+        first_track: Track = populated_queue.tracks[0]
+        removed_track: Track = populated_queue.remove_one_at(0)
+        assert removed_track == first_track
+        assert len(populated_queue) == before_length - 1
+
+    def test_remove_one_at_queue_mid(self, populated_queue):
+        """Test: Remove one at a mid point in the queue."""
+        before_length: int = len(populated_queue)
+        mid_track: Track = populated_queue.tracks[1]
+        removed_track: Track = populated_queue.remove_one_at(1)
+        assert removed_track == mid_track
+        assert len(populated_queue) == before_length - 1
+
+    def test_remove_one_at_queue_end(self, populated_queue):
+        """Test: Remove one at the end point in the queue."""
+        before_length: int = len(populated_queue)
+        end_track: Track = populated_queue.tracks[-1]
+        removed_track: Track = populated_queue.remove_one_at(
+            len(populated_queue)-1
+        )
+        assert removed_track == end_track
+        assert len(populated_queue) == before_length - 1
+
+    def test_remove_one_at_single_track_queue(self, empty_queue, track):
+        """Test: Remove one at of the only track in the queue."""
+        empty_queue.append_one(track)
+        empty_queue.remove_one_at(0)
+        assert empty_queue.tracks == tuple()
+        assert len(empty_queue) == 0
+
+    def test_remove_one_at_track_is_returned(self, populated_queue):
+        """Test: Remove one at returns the removed track."""
+        before_track: Track = populated_queue.tracks[0]
+        removed_track: Track = populated_queue.remove_one_at(0)
+        assert removed_track == before_track
+
+    def test_remove_one_at_track_retains_order(self, populated_queue):
+        """Test: Remove one at retains the order of remaining tracks."""
+        before_tracks: tuple[Track, ...] = populated_queue.tracks
+        populated_queue.remove_one_at(0)
+        assert populated_queue.tracks == before_tracks[1:]
+
+    def test_remove_one_at_float_index_is_error(self, populated_queue):
+        """Test: Remove one at via float index raises TypeError."""
+        before_tracks: tuple[Track, ...] = populated_queue.tracks
+        with pytest.raises(TypeError):
+            populated_queue.remove_one_at(0.0)
+        assert populated_queue.tracks == before_tracks
+
+    def test_remove_one_at_string_index_is_error(self, populated_queue):
+        """Test: Remove one at via string index raises TypeError."""
+        before_tracks: tuple[Track, ...] = populated_queue.tracks
+        with pytest.raises(TypeError):
+            populated_queue.remove_one_at("0")
+        assert populated_queue.tracks == before_tracks
+
+    def test_remove_one_at_bool_index_is_error(self, populated_queue):
+        """Test: Remove one at via bool index raises TypeError."""
+        before_tracks: tuple[Track, ...] = populated_queue.tracks
+        with pytest.raises(TypeError):
+            populated_queue.remove_one_at(True)
+        assert populated_queue.tracks == before_tracks
+
+    def test_remove_one_at_negative_index_is_error(self, populated_queue):
+        """Test: Remove one at via negative index raises IndexError."""
+        before_tracks: tuple[Track, ...] = populated_queue.tracks
+        with pytest.raises(IndexError):
+            populated_queue.remove_one_at(-1)
+        assert populated_queue.tracks == before_tracks
+
+    def test_remove_one_at_len_queue_index_is_error(self, populated_queue):
+        """Test: Remove one at via len(queue) index raises IndexError."""
+        before_tracks: tuple[Track, ...] = populated_queue.tracks
+        with pytest.raises(IndexError):
+            populated_queue.remove_one_at(len(populated_queue))
+        assert populated_queue.tracks == before_tracks
+
+    def test_remove_one_at_len_queue_1_index_is_error(self, populated_queue):
+        """Test: Remove one at via len(queue)+1 index raises IndexError."""
+        before_tracks: tuple[Track, ...] = populated_queue.tracks
+        with pytest.raises(IndexError):
+            populated_queue.remove_one_at(len(populated_queue)+1)
+        assert populated_queue.tracks == before_tracks
+
+    def test_remove_one_at_empty_queue_is_error(self, empty_queue):
+        """Test: Remove one at from empty queue raises IndexError."""
+        with pytest.raises(IndexError):
+            empty_queue.remove_one_at(0)
+
+
 """
-### 5. `remove_one_at()`
-
-- [ ]Remove the first track.
-- [ ]Remove a track from the middle.
-- [ ]Remove the last track.
-- [ ]Remove the only track from a one-track queue.
-- [ ]Verify the removed track is returned.
-- [ ]Verify the remaining tracks preserve their relative order.
-- [ ]Verify the queue length decreases by one.
-- [ ]Raise `TypeError` when the index is a float.
-- [ ]Raise `TypeError` when the index is a string.
-- [ ]Raise `TypeError` when the index is `True` or `False`.
-- [ ]Raise `IndexError` for a negative index.
-- [ ]Raise `IndexError` when the index equals `len(queue)`.
-- [ ]Raise `IndexError` when the index exceeds `len(queue)`.
-- [ ]Raise `IndexError` when removing from an empty queue.
-- [ ]Verify the queue remains unchanged after an invalid removal.
-
 ### 6. `clear_all()`
-
 - [ ]Clear a populated queue.
 - [ ]Verify the queue length becomes zero.
 - [ ]Verify the queue contains no tracks afterward.
@@ -333,7 +418,6 @@ class TestPlaybackQueueInsertOneAt:
 - [ ]Verify previously returned `tracks` snapshots remain unchanged after clearing.
 
 ### 7. `pop_next()`
-
 - [ ]Pop the first track from a populated queue.
 - [ ]Verify the returned track is the first track originally in the queue.
 - [ ]Verify exactly one track is removed.
@@ -343,7 +427,6 @@ class TestPlaybackQueueInsertOneAt:
 - [ ]Raise `IndexError` when popping from an empty queue.
 
 ### 8. `peek_next()`
-
 - [ ]Peek at the first track in a populated queue.
 - [ ]Verify the returned track is the first track.
 - [ ]Verify the queue contents remain unchanged.
@@ -353,7 +436,6 @@ class TestPlaybackQueueInsertOneAt:
 - [ ]Verify repeated peeks return the same first track if no mutations occur.
 
 ### 9. `move_track()`
-
 - [ ]Move the first track to the end.
 - [ ]Move the last track to the beginning.
 - [ ]Move a track forward by one position.
@@ -377,7 +459,6 @@ class TestPlaybackQueueInsertOneAt:
 - [ ]Verify the queue remains unchanged after an invalid destination index.
 
 ### 10. `shuffle()`
-
 - [ ]Shuffle a populated queue without raising an exception.
 - [ ]Verify the queue length remains unchanged.
 - [ ]Verify all original entries remain present after shuffling.
@@ -390,7 +471,6 @@ class TestPlaybackQueueInsertOneAt:
 Do not assert that a shuffle must produce a different order. Randomly obtaining the original order is valid behavior.
 
 ### 11. `tracks` property
-
 - [ ]Verify `tracks` returns a tuple.
 - [ ]Verify the tuple contains all queue entries in order.
 - [ ]Verify the tuple is empty for an empty queue.
@@ -403,7 +483,6 @@ Do not assert that a shuffle must produce a different order. Randomly obtaining 
 - [ ]Verify a previously returned snapshot does not change after shuffling the queue.
 
 ### 12. `__len__()`
-
 - [ ]Return zero for an empty queue.
 - [ ]Return the correct count for a populated queue.
 - [ ]Return the correct count after appending a track.
@@ -415,7 +494,6 @@ Do not assert that a shuffle must produce a different order. Randomly obtaining 
 - [ ]Return the same count before and after shuffling or moving tracks.
 
 ### 13. `__iter__()`
-
 - [ ]Iterate over an empty queue without yielding any tracks.
 - [ ]Iterate over a populated queue in the correct order.
 - [ ]Verify the iterator yields every track exactly once per occurrence.
@@ -424,7 +502,6 @@ Do not assert that a shuffle must produce a different order. Randomly obtaining 
 - [ ]Verify iterating over the queue does not modify it.
 
 ### 14. `__contains__()`
-
 - [ ]Return `True` when a track is present.
 - [ ]Return `False` when a track is absent.
 - [ ]Return `False` when checking an empty queue.
@@ -436,7 +513,6 @@ Do not assert that a shuffle must produce a different order. Randomly obtaining 
 - [ ]Verify a non-`Track` object returns `False` when it is not present.
 
 ### 15. Cross-method consistency and invariants
-
 - [ ]Verify `len(queue) == len(queue.tracks)` after every mutation.
 - [ ]Verify `list(queue) == list(queue.tracks)` after every mutation.
 - [ ]Verify every queued entry is a `Track`.
