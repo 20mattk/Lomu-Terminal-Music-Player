@@ -408,43 +408,142 @@ class TestPlaybackQueueRemoveOneAt:
             empty_queue.remove_one_at(0)
 
 
+class TestPlaybackQueueClearAll:
+    def test_clear_all_populated_queue(self, populated_queue):
+        """Test: Clear all tracks from a populated queue."""
+        populated_queue.clear_all()
+        assert populated_queue.tracks == tuple()
+        assert len(populated_queue) == 0
+
+    def test_clear_all_empty_queue(self, empty_queue):
+        """Test: Clear all on an empty queue doesn't raise an error."""
+        empty_queue.clear_all()
+        assert empty_queue.tracks == tuple()
+        assert len(empty_queue) == 0
+
+    def test_clear_all_multiple_times(self, populated_queue):
+        """Test: Clear all multiple times on a queue doesn't raise an error."""
+        populated_queue.clear_all()
+        assert populated_queue.tracks == tuple()
+        assert len(populated_queue) == 0
+        populated_queue.clear_all()
+        assert populated_queue.tracks == tuple()
+        assert len(populated_queue) == 0
+
+
+class TestPlaybackQueuePopNext:
+    def test_pop_next_first_track(self, populated_queue):
+        """Test: Pop next the first track of a populated queue."""
+        before_length: int = len(populated_queue)
+        populated_queue.pop_next()
+        assert len(populated_queue) == before_length - 1
+
+    def test_pop_next_returns_track(self, populated_queue):
+        """Test: Pop next returns the expected track from the queue."""
+        before_track: Track = populated_queue.tracks[0]
+        popped_track: Track = populated_queue.pop_next()
+        assert popped_track == before_track
+
+    def test_pop_next_retains_relative_order(self, populated_queue):
+        """Test: Pop next retains relative order of original queue."""
+        before_order: tuple[Track, ...] = populated_queue.tracks[1:]
+        populated_queue.pop_next()
+        assert populated_queue.tracks == before_order
+
+    def test_pop_next_from_one_track_queue(self, empty_queue, track):
+        """Test: Pop next works successfully on a one-track queue."""
+        empty_queue.append_one(track)
+        assert len(empty_queue) == 1
+        assert empty_queue.tracks == (track,)
+        empty_queue.pop_next()
+        assert len(empty_queue) == 0
+        assert empty_queue.tracks == tuple()
+
+    def test_pop_next_empty_queue_is_error(self, empty_queue):
+        """Test: Pop next raises IndexError when popping from empty queue."""
+        with pytest.raises(IndexError):
+            empty_queue.pop_next()
+
+
+class TestPlaybackQueuePeekNext:
+    def test_peek_next_first_track_returned(self, populated_queue):
+        """Test: Peek next returns the first track of a populated queue."""
+        before_track: Track = populated_queue.tracks[0]
+        peeked_track: Track = populated_queue.peek_next()
+        assert peeked_track == before_track
+
+    def test_peek_next_retains_queue_order(self, populated_queue):
+        """Test: Peek next retains order of populated queue."""
+        before_tracks: tuple[Track, ...] = populated_queue.tracks
+        populated_queue.peek_next()
+        assert populated_queue.tracks == before_tracks
+
+    def test_peek_next_retains_queue_length(self, populated_queue):
+        """Test: Peek next retains length of populated queue."""
+        before_length: int = len(populated_queue)
+        populated_queue.peek_next()
+        assert len(populated_queue) == before_length
+
+    def test_peek_next_one_track_queue(self, empty_queue, track):
+        """Test: Peek next on a one-track queue."""
+        empty_queue.append_one(track)
+        assert len(empty_queue) == 1
+        peeked_track: Track = empty_queue.peek_next()
+        assert len(empty_queue) == 1
+        assert peeked_track == track
+
+    def test_peek_next_empty_queue_is_error(self, empty_queue):
+        """Test: Peek next on empty queue raises IndexError."""
+        with pytest.raises(IndexError):
+            empty_queue.peek_next()
+
+    def test_peek_next_returns_same_track_each_time(self, populated_queue):
+        """Test: Peek next on the same unaltered queue returns same track."""
+        peeked_track_1: Track = populated_queue.peek_next()
+        peeked_track_2: Track = populated_queue.peek_next()
+        assert peeked_track_1 == peeked_track_2
+
+
+class TestPlaybackQueueMoveTrack:
+    def test_move_track_first_to_end(self, populated_queue):
+        """Test: Move track from first position to the end."""
+        track_to_move: Track = populated_queue.tracks[0]
+        populated_queue.move_track(0, len(populated_queue)-1)
+        assert populated_queue.tracks[-1] == track_to_move
+
+    def test_move_track_end_to_start(self, populated_queue):
+        """Test: Move track from end position to the start."""
+        track_to_move: Track = populated_queue.tracks[-1]
+        populated_queue.move_track(len(populated_queue)-1, 0)
+        assert populated_queue.tracks[0] == track_to_move
+
+    def test_move_track_forward_one_spot(self, populated_queue):
+        """Test: Move track forward one position."""
+        track_to_move: Track = populated_queue.tracks[1]
+        populated_queue.move_track(1, 0)
+        assert populated_queue.tracks[0] == track_to_move
+
+    def test_move_track_back_one_spot(self, populated_queue):
+        """Test: Move track back one position."""
+        track_to_move: Track = populated_queue.tracks[0]
+        populated_queue.move_track(0, 1)
+        assert populated_queue.tracks[1] == track_to_move
+
+    def test_move_track_to_itself_unchanged(self, populated_queue):
+        """Test: Move track to its own spot to verify queue is unchanged."""
+        before_tracks: tuple[Track, ...] = populated_queue.tracks
+        populated_queue.move_track(0, 0)
+        assert populated_queue.tracks == before_tracks
+
+    def test_move_track_retains_other_relative_order(self, populated_queue):
+        """Test: Move track leaves relative order of other tracks the same."""
+        subset_tracks: tuple[Track, ...] = populated_queue.tracks[1:]
+        populated_queue.move_track(0, len(populated_queue)-1)
+        assert populated_queue.tracks[:-1] == subset_tracks
+
+
 """
-### 6. `clear_all()`
-- [ ]Clear a populated queue.
-- [ ]Verify the queue length becomes zero.
-- [ ]Verify the queue contains no tracks afterward.
-- [ ]Clear an already empty queue without raising an exception.
-- [ ]Clear a queue multiple times without raising an exception.
-- [ ]Verify previously returned `tracks` snapshots remain unchanged after clearing.
-
-### 7. `pop_next()`
-- [ ]Pop the first track from a populated queue.
-- [ ]Verify the returned track is the first track originally in the queue.
-- [ ]Verify exactly one track is removed.
-- [ ]Verify the remaining tracks retain their relative order.
-- [ ]Pop the only track from a one-track queue.
-- [ ]Verify the queue becomes empty after popping its only track.
-- [ ]Raise `IndexError` when popping from an empty queue.
-
-### 8. `peek_next()`
-- [ ]Peek at the first track in a populated queue.
-- [ ]Verify the returned track is the first track.
-- [ ]Verify the queue contents remain unchanged.
-- [ ]Verify the queue length remains unchanged.
-- [ ]Peek at a one-track queue.
-- [ ]Raise `IndexError` when peeking at an empty queue.
-- [ ]Verify repeated peeks return the same first track if no mutations occur.
-
 ### 9. `move_track()`
-- [ ]Move the first track to the end.
-- [ ]Move the last track to the beginning.
-- [ ]Move a track forward by one position.
-- [ ]Move a track backward by one position.
-- [ ]Move a track several positions forward.
-- [ ]Move a track several positions backward.
-- [ ]Move a track to its current index and verify the queue is unchanged.
-- [ ]Verify the queue length remains unchanged after a successful move.
-- [ ]Verify all other tracks preserve their relative order.
 - [ ]Raise `TypeError` when the source index is a float.
 - [ ]Raise `TypeError` when the destination index is a float.
 - [ ]Raise `TypeError` when either index is a string.
