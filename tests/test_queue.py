@@ -541,22 +541,77 @@ class TestPlaybackQueueMoveTrack:
         populated_queue.move_track(0, len(populated_queue)-1)
         assert populated_queue.tracks[:-1] == subset_tracks
 
+    def test_move_track_source_index_float(self, populated_queue):
+        """Test: Move track raises TypeError when source index is float."""
+        with pytest.raises(TypeError):
+            populated_queue.move_track(0.0, 1)
+
+    def test_move_track_destination_index_float(self, populated_queue):
+        """Test: Move track raises TypeError when destination index is float."""
+        with pytest.raises(TypeError):
+            populated_queue.move_track(0, 1.0)
+
+    def test_move_track_source_index_string(self, populated_queue):
+        """Test: Move track raises TypeError when source index is string."""
+        with pytest.raises(TypeError):
+            populated_queue.move_track("0", 1)
+
+    def test_move_track_destination_index_string(self, populated_queue):
+        """Test: Move track raises TypeError when dest. index is string."""
+        with pytest.raises(TypeError):
+            populated_queue.move_track(0, "1")
+
+    def test_move_track_source_index_bool(self, populated_queue):
+        """Test: Move track raises TypeError when source index is bool."""
+        with pytest.raises(TypeError):
+            populated_queue.move_track(True, 1)
+
+    def test_move_track_destination_index_bool(self, populated_queue):
+        """Test: Move track raises TypeError when destination index is bool."""
+        with pytest.raises(TypeError):
+            populated_queue.move_track(0, True)
+
+    def test_move_track_source_index_negative(self, populated_queue):
+        """Test: Move track raises IndexError when source index is negative."""
+        with pytest.raises(IndexError):
+            populated_queue.move_track(-1, 1)
+
+    def test_move_track_destination_index_negative(self, populated_queue):
+        """Test: Move track raises IndexError when dest. index is negative."""
+        with pytest.raises(IndexError):
+            populated_queue.move_track(0, -1)
+
+    def test_move_track_source_index_too_big(self, populated_queue):
+        """Test: Move track raises IndexError when source index is too big."""
+        with pytest.raises(IndexError):
+            populated_queue.move_track(len(populated_queue), 1)
+
+    def test_move_track_destination_index_too_big(self, populated_queue):
+        """Test: Move track raises IndexError when dest. index is too big."""
+        with pytest.raises(IndexError):
+            populated_queue.move_track(0, len(populated_queue))
+
+    def test_move_track_empty_queue_is_error(self, empty_queue):
+        """Test: Move track raises IndexError when moving in empty queue."""
+        with pytest.raises(IndexError):
+            empty_queue.move_track(0, 1)
+
+    def test_move_track_invalid_source_retains_queue(self, populated_queue):
+        """Test: Move track invalid source index doesn't harm queue."""
+        before_tracks: tuple[Track, ...] = populated_queue.tracks
+        with pytest.raises(IndexError):
+            populated_queue.move_track(-1, 1)
+        assert populated_queue.tracks == before_tracks
+
+    def test_move_track_invalid_dest_retains_queue(self, populated_queue):
+        """Test: Move track invalid dest. index doesn't harm queue."""
+        before_tracks: tuple[Track, ...] = populated_queue.tracks
+        with pytest.raises(IndexError):
+            populated_queue.move_track(1, -1)
+        assert populated_queue.tracks == before_tracks
+
 
 """
-### 9. `move_track()`
-- [ ]Raise `TypeError` when the source index is a float.
-- [ ]Raise `TypeError` when the destination index is a float.
-- [ ]Raise `TypeError` when either index is a string.
-- [ ]Raise `TypeError` when either index is `True` or `False`.
-- [ ]Raise `IndexError` when the source index is negative.
-- [ ]Raise `IndexError` when the destination index is negative.
-- [ ]Raise `IndexError` when the source index equals `len(queue)`.
-- [ ]Raise `IndexError` when the destination index equals `len(queue)`.
-- [ ]Raise `IndexError` when either index exceeds `len(queue)`.
-- [ ]Raise `IndexError` when moving a track in an empty queue.
-- [ ]Verify the queue remains unchanged after an invalid source index.
-- [ ]Verify the queue remains unchanged after an invalid destination index.
-
 ### 10. `shuffle()`
 - [ ]Shuffle a populated queue without raising an exception.
 - [ ]Verify the queue length remains unchanged.
