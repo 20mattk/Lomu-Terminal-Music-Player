@@ -611,19 +611,54 @@ class TestPlaybackQueueMoveTrack:
         assert populated_queue.tracks == before_tracks
 
 
+class TestPlaybackQueueShuffle:
+    def test_shuffle_populated_queue_retains_length(self, populated_queue):
+        """Test: Shuffle queue doesn't change the length of the queue."""
+        before_length: int = len(populated_queue)
+        populated_queue.shuffle()
+        assert len(populated_queue) == before_length
+
+    def test_shuffle_retains_all_original_tracks(self,  populated_queue):
+        """Test: Shuffle a queue retains all tracks from original order."""
+        before_tracks: tuple[Track, ...] = populated_queue.tracks
+        populated_queue.shuffle()
+        for track in populated_queue.tracks:
+            assert track in before_tracks
+
+    def test_shuffle_with_duplicates_keeps_all(self, populated_queue):
+        """Test: Shuffling queue with duplicate tracks keeps all counts."""
+        duplicate_track: Track = populated_queue.tracks[0]
+        populated_queue.append_one(duplicate_track)
+        populated_queue.shuffle()
+        duplicate_count: int = 0
+        for track in populated_queue.tracks:
+            if track == duplicate_track:
+                duplicate_count += 1
+        assert duplicate_count == 2
+
+    def test_shuffle_empty_queue_no_error(self, empty_queue):
+        """Test: Shuffling an empty queue raises no error."""
+        empty_queue.shuffle()
+
+    def test_shuffle_one_track_queue_successfully(self, empty_queue, track):
+        """Test: Shuffling a one-track queue doesn't change the tracks."""
+        empty_queue.append_one(track)
+        before_queue: tuple[Track, ...] = empty_queue.tracks
+        empty_queue.shuffle()
+        assert empty_queue.tracks == before_queue
+
+    def test_shuffle_multiple_times(self, populated_queue):
+        """Test: Shuffling a queue multiple times doesn't lose tracks."""
+        before_length: int = len(populated_queue)
+        before_tracks: tuple[Track, ...] = populated_queue.tracks
+        populated_queue.shuffle()
+        populated_queue.shuffle()
+        assert len(populated_queue) == before_length
+        for track in populated_queue.tracks:
+            assert track in before_tracks
+
+
 """
-### 10. `shuffle()`
-- [ ]Shuffle a populated queue without raising an exception.
-- [ ]Verify the queue length remains unchanged.
-- [ ]Verify all original entries remain present after shuffling.
-- [ ]Verify duplicate tracks retain their original occurrence counts.
-- [ ]Shuffle an empty queue without raising an exception.
-- [ ]Shuffle a one-track queue without changing its contents.
-- [ ]Shuffle a queue containing duplicate tracks.
-- [ ]Shuffle the queue multiple times without losing or adding entries.
-
-Do not assert that a shuffle must produce a different order. Randomly obtaining the original order is valid behavior.
-
 ### 11. `tracks` property
 - [ ]Verify `tracks` returns a tuple.
 - [ ]Verify the tuple contains all queue entries in order.
