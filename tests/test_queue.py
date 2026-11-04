@@ -658,19 +658,70 @@ class TestPlaybackQueueShuffle:
             assert track in before_tracks
 
 
-"""
-### 11. `tracks` property
-- [ ]Verify `tracks` returns a tuple.
-- [ ]Verify the tuple contains all queue entries in order.
-- [ ]Verify the tuple is empty for an empty queue.
-- [ ]Verify the returned tuple cannot be modified.
-- [ ]Verify appending to a list created from the tuple does not affect the queue.
-- [ ]Verify clearing a list created from the tuple does not affect the queue.
-- [ ]Verify a previously returned snapshot does not change after appending a track.
-- [ ]Verify a previously returned snapshot does not change after removing a track.
-- [ ]Verify a previously returned snapshot does not change after clearing the queue.
-- [ ]Verify a previously returned snapshot does not change after shuffling the queue.
+class TestPlaybackQueueTracks:
+    def test_tracks_returns_tuple(self, populated_queue):
+        """Test: Attribute tracks returns a tuple."""
+        assert isinstance(populated_queue.tracks, tuple)
 
+    def test_tracks_contain_tracks(self, populated_queue):
+        """Test: Attribute tracks contains only tracks."""
+        for track in populated_queue.tracks:
+            assert isinstance(track, Track)
+
+    def test_tracks_empty_for_empty_queue(self, empty_queue):
+        """Test: Attribute tracks for empty queue is empty."""
+        assert empty_queue.tracks == tuple()
+        assert len(empty_queue.tracks) == 0
+
+    def test_tracks_cannot_be_modified(self, populated_queue, track):
+        """Test: Attribute tracks cannot be modified."""
+        with pytest.raises(AttributeError):
+            populated_queue.tracks = track
+
+    def test_tracks_list_add_no_queue_change(self, populated_queue, track):
+        """Test: Appending to a list created from tracks leaves queue alone."""
+        before_tracks: tuple[Track, ...] = populated_queue.tracks
+        before_list: list[Track] = list(before_tracks)
+        before_list.append(track)
+        assert populated_queue.tracks == before_tracks
+
+    def test_tracks_list_clear_no_qeue_change(self, populated_queue, track):
+        """Test: Clearing a list created from tracks leaves queue alone."""
+        before_tracks: tuple[Track, ...] = populated_queue.tracks
+        before_list: list[Track] = list(before_tracks)
+        before_list.clear()
+        assert populated_queue.tracks == before_tracks
+
+    def test_tracks_original_no_change_after_add(self, populated_queue, track):
+        """Test: A previously returned track no change after appending track."""
+        before_tracks: tuple[Track, ...] = populated_queue.tracks
+        populated_queue.append_one(track)
+        assert before_tracks != populated_queue.tracks
+        assert len(before_tracks) == len(populated_queue) - 1
+
+    def test_tracks_original_no_change_after_rmv(self, populated_queue, track):
+        """Test: A previously returned track no change after removing track."""
+        before_tracks: tuple[Track, ...] = populated_queue.tracks
+        populated_queue.pop_next()
+        assert before_tracks != populated_queue.tracks
+        assert len(before_tracks) == len(populated_queue) + 1
+
+    def test_tracks_original_no_change_after_clr(self, populated_queue, track):
+        """Test: A previously returned track no change after clearing tracks."""
+        before_tracks: tuple[Track, ...] = populated_queue.tracks
+        populated_queue.clear_all()
+        assert before_tracks != populated_queue.tracks
+        assert len(before_tracks) != len(populated_queue)
+
+    def test_tracks_original_no_change_after_shfl(self, populated_queue, track):
+        """Test: A previously returned track no change after shuffle tracks."""
+        before_tracks: tuple[Track, ...] = populated_queue.tracks
+        populated_queue.shuffle()
+        assert before_tracks != populated_queue.tracks
+
+
+
+"""
 ### 12. `__len__()`
 - [ ]Return zero for an empty queue.
 - [ ]Return the correct count for a populated queue.
