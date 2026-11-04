@@ -720,19 +720,67 @@ class TestPlaybackQueueTracks:
         assert before_tracks != populated_queue.tracks
 
 
+class TestPlaybackQueueLen:
+    def test_len_returns_zero_for_empty_queue(self, empty_queue):
+        """Test: len returns 0 for empty queue."""
+        assert len(empty_queue) == 0
+
+    def test_len_returns_correct_count(self, populated_queue):
+        """Test: len returns correct length for populated queue."""
+        count: int = 0
+        for track in populated_queue.tracks:
+            count += 1
+        assert len(populated_queue) == count
+
+    def test_len_returns_correct_post_append_one(self, populated_queue, track):
+        """Test: len returns correct length post-appending a track."""
+        before_length: int = len(populated_queue)
+        populated_queue.append_one(track)
+        assert len(populated_queue) == before_length + 1
+
+    def test_len_returns_correct_post_append_mult(self, populated_queue, track):
+        """Test: len returns correct length post-appending tracks."""
+        before_length: int = len(populated_queue)
+        populated_queue.append_many([track, track])
+        assert len(populated_queue) == before_length + 2
+
+    def test_len_returns_correct_post_insert_one(self, populated_queue, track):
+        """Test: len returns correct length post-insert a track."""
+        before_length: int = len(populated_queue)
+        populated_queue.insert_one_at(1, track)
+        assert len(populated_queue) == before_length + 1
+
+    def test_len_returns_correct_post_remove_one(self, populated_queue, track):
+        """Test: len returns correct length post-remove a track."""
+        before_length: int = len(populated_queue)
+        populated_queue.remove_one_at(1)
+        assert len(populated_queue) == before_length - 1
+
+    def test_len_returns_correct_post_pop(self, populated_queue):
+        """Test: len returns correct length post-popping a track."""
+        before_length: int = len(populated_queue)
+        populated_queue.pop_next()
+        assert len(populated_queue) == before_length - 1
+
+    def test_len_returns_correct_post_clear(self, populated_queue):
+        """Test: len returns correct length post-clearing a queue."""
+        populated_queue.clear_all()
+        assert len(populated_queue) == 0
+
+    def test_len_returns_correct_post_shuffle(self, populated_queue):
+        """Test: len returns correct length post-shuffling a queue."""
+        before_length: int = len(populated_queue)
+        populated_queue.shuffle()
+        assert len(populated_queue) == before_length
+
+    def test_len_returns_correct_post_move(self, populated_queue):
+        """Test: len returns correct length post-moving a track."""
+        before_length: int = len(populated_queue)
+        populated_queue.move_track(1, 2)
+        assert len(populated_queue) == before_length
+
 
 """
-### 12. `__len__()`
-- [ ]Return zero for an empty queue.
-- [ ]Return the correct count for a populated queue.
-- [ ]Return the correct count after appending a track.
-- [ ]Return the correct count after appending multiple tracks.
-- [ ]Return the correct count after inserting a track.
-- [ ]Return the correct count after removing a track.
-- [ ]Return the correct count after popping a track.
-- [ ]Return zero after clearing the queue.
-- [ ]Return the same count before and after shuffling or moving tracks.
-
 ### 13. `__iter__()`
 - [ ]Iterate over an empty queue without yielding any tracks.
 - [ ]Iterate over a populated queue in the correct order.
