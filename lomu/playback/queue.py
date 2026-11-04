@@ -173,7 +173,14 @@ class PlaybackQueue:
     def shuffle(self) -> None:
         """Shuffle the order of the queue."""
         # future: shuffle tracks in current "context" (album, playlist, etc.)
+        if len(self._tracks) < 2:
+            return
+
+        original: list[Track] = self._tracks.copy()
         random_shuffle(self._tracks)
+
+        if self._tracks == original:
+            self._tracks.append(self._tracks.pop(0))
 
     # === helper methods === #
     def _validate_track(self, track: object) -> None:
