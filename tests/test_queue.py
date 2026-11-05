@@ -780,15 +780,28 @@ class TestPlaybackQueueLen:
         assert len(populated_queue) == before_length
 
 
-"""
-### 13. `__iter__()`
-- [ ]Iterate over an empty queue without yielding any tracks.
-- [ ]Iterate over a populated queue in the correct order.
-- [ ]Verify the iterator yields every track exactly once per occurrence.
-- [ ]Verify duplicate tracks are yielded the correct number of times.
-- [ ]Verify `list(queue)` matches `list(queue.tracks)`.
-- [ ]Verify iterating over the queue does not modify it.
+class TestPlaybackQueueIter:
+    def test_iter_over_empty_queue_yields_no_tracks(self, empty_queue):
+        """Test: Iterate over empty queue without yeilding any tracks."""
+        assert list(empty_queue) == []
 
+    def test_iter_populated_queue_in_correct_order(self, populated_queue):
+        """Test: Iterate over populated queue yields correct track order."""
+        before_tracks: tuple[Track, ...] = populated_queue.tracks
+        assert tuple(populated_queue) == before_tracks
+    
+    def test_iter_matches_extracted_track_list(self, populated_queue):
+        """Test: Iteration returns the same tracks as an extracted list."""
+        assert list(populated_queue) == list(populated_queue.tracks)
+
+    def test_iter_populated_queue_does_not_modify(self, populated_queue):
+        """Test: Iterating over populated queue doesn't modify it."""
+        before_tracks: tuple[Track, ...] = populated_queue.tracks
+        list(populated_queue)  # consume the iterator
+        assert populated_queue.tracks == before_tracks
+
+
+"""
 ### 14. `__contains__()`
 - [ ]Return `True` when a track is present.
 - [ ]Return `False` when a track is absent.
