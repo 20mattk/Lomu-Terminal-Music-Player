@@ -849,17 +849,3 @@ class TestPlaybackQueueContains:
     def test_contains_false_when_non_track_checked(self, populated_queue):
         """Test: Verify a non-track is false when checking membership."""
         assert "Track!" not in populated_queue
-
-
-"""
-### 15. Cross-method consistency and invariants
-- [ ]Verify `len(queue) == len(queue.tracks)` after every mutation.
-- [ ]Verify `list(queue) == list(queue.tracks)` after every mutation.
-- [ ]Verify every queued entry is a `Track`.
-- [ ]Verify adding and then removing a track restores the original contents.
-- [ ]Verify popping all tracks returns them in their original order.
-- [ ]Verify clearing and then repopulating the queue works correctly.
-- [ ]Verify a sequence of mixed operations maintains the correct contents and order.
-- [ ]Verify failed operations do not mutate the queue.
-- [ ]Verify repeated operations on an empty queue behave according to the documented exceptions.
-"""
