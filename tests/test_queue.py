@@ -801,18 +801,57 @@ class TestPlaybackQueueIter:
         assert populated_queue.tracks == before_tracks
 
 
-"""
-### 14. `__contains__()`
-- [ ]Return `True` when a track is present.
-- [ ]Return `False` when a track is absent.
-- [ ]Return `False` when checking an empty queue.
-- [ ]Return `True` when a track appears multiple times.
-- [ ]Return `False` after the only occurrence of a track is removed.
-- [ ]Return `True` after appending a previously absent track.
-- [ ]Return `False` after clearing the queue.
-- [ ]Verify membership checks do not modify the queue.
-- [ ]Verify a non-`Track` object returns `False` when it is not present.
+class TestPlaybackQueueContains:
+    def test_contains_true_when_track_present(self, populated_queue):
+        """Test: Validate a track is present in a queue."""
+        check_track: Track = populated_queue.peek_next()
+        assert check_track in populated_queue
 
+    def test_contains_false_when_track_missing(self, populated_queue, track):
+        """Test: Validate a track is missing in a queue."""
+        assert track not in populated_queue
+
+    def test_contains_false_when_empty_queue(self, empty_queue, track):
+        """Test: Validate an empty queue contains doesn't find a track."""
+        assert track not in empty_queue
+
+    def test_contains_true_when_multiple_track(self, populated_queue):
+        """Test: Validate a track is present when in queue multiple times."""
+        check_track: Track = populated_queue.peek_next()
+        populated_queue.append_one(check_track)
+        assert check_track in populated_queue
+
+    def test_contains_false_when_track_removed(self, populated_queue):
+        """Test: Contains is false when the checked track is removed."""
+        removed_track: Track = populated_queue.pop_next()
+        assert removed_track not in populated_queue
+
+    def test_contains_true_after_readd_track(self, populated_queue):
+        """Test: Contains is true when the checked track is re-added."""
+        removed_track: Track = populated_queue.pop_next()
+        populated_queue.append_one(removed_track)
+        assert removed_track in populated_queue
+
+    def test_contains_false_after_clearing_queue(self, populated_queue):
+        """Test: Contains is false whenever queue is cleared."""
+        removed_track: Track = populated_queue.pop_next()
+        populated_queue.clear_all()
+        assert removed_track not in populated_queue
+
+    def test_contains_does_not_modify_queue(self, populated_queue):
+        """Test: Membership checks do not modify the queue."""
+        before_tracks: tuple[Track, ...] = populated_queue.tracks
+        check_track: Track = populated_queue.peek_next()
+        if check_track in populated_queue:
+            pass
+        assert populated_queue.tracks == before_tracks
+
+    def test_contains_false_when_non_track_checked(self, populated_queue):
+        """Test: Verify a non-track is false when checking membership."""
+        assert "Track!" not in populated_queue
+
+
+"""
 ### 15. Cross-method consistency and invariants
 - [ ]Verify `len(queue) == len(queue.tracks)` after every mutation.
 - [ ]Verify `list(queue) == list(queue.tracks)` after every mutation.
