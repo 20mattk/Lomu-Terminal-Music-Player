@@ -1,36 +1,3 @@
-# === TODO =================================================================== #
-
-# I will re-structure the playback module according to the below:
-# lomu/
-# └── playback/
-#     ├── __init__.py
-#     ├── context.py     # Track scope/eligibility for current playback session
-#     ├── queue.py       # Ordering and shuffling of Tracks in the Queue
-#     ├── controller.py  # Track playback state (play/next, etc, send to Player)
-#     ├── player.py      # Audio playback with VLC and event reporting
-#     └── events.py      # Defines events to be reported by the Player
-
-# Development Order:
-# 1. context.py
-# 2. queue.py
-# 3. events.py
-# 4. player.py
-# 5. controller.py
-
-# !!! HISTORY MIGHT BECOME ITS OWN MODULE AT SOME POINT !!!
-
-# Queue vs. Controller
-# 1. History of Played Tracks:  Queue
-# 2. Current Playing Track:     Controller
-# 3. Queue of Upcoming Tracks:  Queue
-# 4. Add, Remove, Clear Tracks: Queue
-# 5. Shuffling:                 Queue
-# 6. Going to Next Track:       Controller
-# 7. Going to Previous Track:   Controller
-
-# ============================================================================ #
-
-
 from ..library import Track
 from random import shuffle as random_shuffle
 from collections.abc import Iterator, Iterable
