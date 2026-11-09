@@ -4,36 +4,63 @@ from ..library import Track
 
 
 class PlayerState(Enum):
-    """Represents the valid states of the player."""
-    IDLE = auto()
-    LOADING = auto()
-    PLAYING = auto()
-    PAUSED = auto()
-    STOPPED = auto()
-    ERROR = auto()
+    """Represents the valid states of the player. Synchronized with VLC."""
+    IDLE = auto()       # vlc.State.NothingSpecial = 0
+    OPENING = auto()    # vlc.State.Opening = 1
+    BUFFERING = auto()  # vlc.State.Buffering = 2
+    PLAYING = auto()    # vlc.State.Playing = 3
+    PAUSED = auto()     # vlc.State.Paused = 4
+    STOPPED = auto()    # vlc.State.Stopped = 5
+    ENDED = auto()      # vlc.State.Ended = 6
+    ERROR = auto()      # vlc.State.Error = 7
 
 
 class Player():
-    """<Docstring>."""
+    """
+    The class for controlling the playback of an individual Track object.
+    Built on top of Python's VLC library.
+    """
     def __init__(self) -> None:
-        # _vlc_instance: vlc.Instance       # creates/manages VLC media rsrcs
-        # _media_player: vlc.MediaPlayer    # controls actual audio playback
-        # _current_media: vlc.Media | None  # holds current VLC media object
+        instance = vlc.Instance("--no-video")
+        if instance is None:
+            raise RuntimeError("Could not initialize VLC.")
 
-        # _player_state: PlayerState        # the app's playback state
-        # _current_track: Track             # currently-loaded track
-        # _volume: int                      # current VLC volume setting
-        # _events: ?EventBus?               # publishes playback events
-        pass
+        self._vlc_instance: vlc.Instance = instance
+        self._player: vlc.MediaPlayer = self._vlc_instance.media_player_new()
+        self._current_media: vlc.Media | None = None
 
-    # properties
-    # state          # internal attribute
-    # current_track  # internal attribute
-    # volume         # vlc audio_get_volume()
-    # is_playing     # vlc is_playing()
-    # is_paused      # vlc get_state()
-    # posiiton       # vlc get_time()
-    # duration       # vlc get_length()
+        self._player_state: PlayerState = PlayerState.IDLE
+        self._current_track: Track | None = None
+        # self._events: EventBus  # to be implemented later
+
+    # === properties === #
+    @property
+    def state(self) -> PlayerState:
+        return self._player_state
+
+    @property
+    def is_playing(self) -> bool:
+        return self._player_state == PlayerState.PLAYING
+
+    @property
+    def is_paused(self) -> bool:
+        return self._player_state == PlayerState.PAUSED
+
+    @property
+    def current_track(self) -> Track | None:
+        return self._current_track
+
+    @property
+    def volume(self) -> int:
+        return self._player.audio_get_volume()
+
+    @property
+    def position(self) -> int:
+        return self._player.get_time()
+
+    @property
+    def duration(self) -> int:
+        return self._player.get_length()
 
     # public methods
     def load(self, track: Track) -> None:
