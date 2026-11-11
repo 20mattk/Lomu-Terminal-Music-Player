@@ -1,3 +1,9 @@
+# TODO
+# vlc callbacks
+# vlc Event/EventType/EventManager vs vlc State
+# https://python-vlc.readthedocs.io/en/latest/api.html
+
+
 import vlc
 from enum import Enum, auto
 from ..library import Track
