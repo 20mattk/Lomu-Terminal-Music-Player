@@ -1,9 +1,9 @@
 # Lomu Terminal Music Player
 
-## Background
+## 📬 Background
 - A personal project to build a terminal music player from scratch for fun.
 
-## Structure
+## 🩻 Structure
 - As of now, there exists two main directories:
     1. The main project directory
     2. The testing directory (using `pytest`)
@@ -12,12 +12,12 @@
     2. Playback (controlling library playback)
     3. UI (terminal UI)
 
-## Disclaimer
+## ⚠️ Disclaimer
 - I'm almost completely new to building something like this.
 - Things are subject to change as I learn more.
 
-## Things I've Learned
-### General Things
+## 📚 Things I've Learned
+### 📝 General Things
 - General Terms
     - Resourced Managed Player Client (RPMC)
     - Music Player Daemon (MPD): Server that plays music; clients connect to it
@@ -33,7 +33,7 @@
     - Docstrings and versioning
     - Can also export key classes/functions for easier importing elsewhere
     - Enables `from lomu import Player` over `from lomu.player import Player`
-### Types
+### 🗂️ Types
 - `from typing import Optional`
     - Like Optionals in Swift
     - A value can be of a certain type, or `None`
@@ -43,7 +43,7 @@
     - Learned how to create safe, type-checked constants
     - To ensure type safety from string values
     - Was used for my file audio types
-### Classes
+### 🗃️ Classes
 - Factory Methods
     - Implemented in `lomu/library/metadata.py`
     - This was a design pattern I wasn't even aware of before this project
@@ -73,7 +73,7 @@
     - A static method belongs to the class itself, not to any isntance
     - However, it does need an instance or class state
     - A pure utility function that takes input and returns output
-### Testing
+### 🧪 Testing
 - Unit/Integration Testing
     - Implemented in `tests/`
     - I learned some basics of unit/integration testing using `pytest`
