@@ -68,10 +68,22 @@ class Player():
     def duration(self) -> int:
         return self._player.get_length()
 
-    # public methods
+    # === public methods === #
     def load(self, track: Track) -> None:
-        # vlc: set_media()
-        pass
+        self._player_state = PlayerState.OPENING
+
+        try:
+            media: vlc.Media = self._vlc_instance.media_new(track.file_path)
+            self._player.set_media(media)
+
+            self._current_media = media
+            self._current_track = track
+
+            self._player_state = PlayerState.IDLE
+        except Exception:
+            self._player_state = PlayerState.ERROR
+            raise
+        
 
     def play(self) -> None:
         # vlc: play()
@@ -101,7 +113,7 @@ class Player():
         # vlc: release()
         pass
 
-    # private methods
+    # === private methods === #
     def _set_state(self) -> None:
         # update internal player state
         raise NotImplementedError
