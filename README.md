@@ -20,6 +20,7 @@
 ### 📝 General Things
 - General Terms
     - Resourced Managed Player Client (RPMC)
+    - Daemon: A process which runs in the background
     - Music Player Daemon (MPD): Server that plays music; clients connect to it
     - Music Player Client (MPC): CLI client for controlling MPD
 - Version numbers (x.y.z)
@@ -43,6 +44,17 @@
     - Learned how to create safe, type-checked constants
     - To ensure type safety from string values
     - Was used for my file audio types
+- Iterable
+    - Something you can loop over
+    - An object which you can get an iterator from by using `iter(obj)`
+    - Example: a list of numbers
+- Iterator
+    - An object which produces values one at a time, remembers its progress, and is itself iterable
+    - `list(nums_list)` "consumes" an iterable, collecting all of its items and leaving the iterator exhausted
+    - `[nums_list]` does NOT "consume" an iterable - it just puts it inside of a list where the items are not collected
+    - `next(iterator)` advances the iterator and returns the next value
+    - Example: `items = [1, 2, 3]  # iterable`
+    - Example: `it = iter(items)  # iterator`
 ### 🗃️ Classes
 - Factory Methods
     - Implemented in `lomu/library/metadata.py`
@@ -73,6 +85,11 @@
     - A static method belongs to the class itself, not to any isntance
     - However, it does need an instance or class state
     - A pure utility function that takes input and returns output
+- `@property`
+    - A method decorator to call the method like an attribute
+    - Can use to return immutable or private internal attributes in the body
+    - To protect or hide internal data
+    - Can also be used to return "computed properties" where the value must be computed in the body each time you call for it
 ### 🧪 Testing
 - Unit/Integration Testing
     - Implemented in `tests/`
@@ -99,3 +116,22 @@
 - `assert`
     - Syntax: `assert <any Python statement or code>`
     - If true, nothing happens, if false, raises an `AssertionError`
+### 🧶 Threading
+- Daemon
+    - A process that runs in the background
+- Python Non-Daemonic Thread (Default)
+    - A program will wait for non-daemon threads to complete before it exits
+    - `x = threading.Thread(target=thread_function, args=(1,))`
+- Python Daemon Thread
+    - A daemon thread will shut down immediately when the program exits
+    - The program does not wait for a dameon thread to complete
+    - `x = threading.Thread(target=thread_function, args=(1,), daemon=True)`
+- `threading._shutdown()`
+    - Python `threading` library waits for every running thread that doesn’t have the daemon flag set to finish
+- `x.join()`
+    - To tell one thread to wait for another thread to finish
+    - Like telling the main thread to wait until the `x` thread has finished to proceed with the rest of its own execution
+    - The statement will wait until either kind of thread (daemon or not) is finished
+- Race Condition
+    - A flaw in concurrent code
+    - Where the outcome depends on the relative timing or interleaving of multiple threads or processes that access shared state, when at least one of them writes to it
