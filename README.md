@@ -117,6 +117,8 @@
     - Syntax: `assert <any Python statement or code>`
     - If true, nothing happens, if false, raises an `AssertionError`
 ### 🧶 Threading
+- Thread
+    - An independent path of execution inside one process
 - Daemon
     - A process that runs in the background
 - Python Non-Daemonic Thread (Default)
@@ -129,9 +131,17 @@
 - `threading._shutdown()`
     - Python `threading` library waits for every running thread that doesn’t have the daemon flag set to finish
 - `x.join()`
-    - To tell one thread to wait for another thread to finish
+    - To tell one thread to "wait here" for another thread to finish
     - Like telling the main thread to wait until the `x` thread has finished to proceed with the rest of its own execution
     - The statement will wait until either kind of thread (daemon or not) is finished
 - Race Condition
     - A flaw in concurrent code
     - Where the outcome depends on the relative timing or interleaving of multiple threads or processes that access shared state, when at least one of them writes to it
+    - Like multiple threads writing to the value of a credit card balance or something
+- Locking
+    - Only one thread at a time can have the Lock (`threading.Lock()`)
+    - Any other thread that wants the Lock must wait until the owner of the Lock gives it up
+    - Done via `.acquire()` and `.release()`, or as a context manager using `with`
+- Deadlock
+    - An implementation bug where a Lock is not released properly
+    - A design issue where a utility function needs to be called by functions that might or might not already have the Lock
