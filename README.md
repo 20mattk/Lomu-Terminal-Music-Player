@@ -117,23 +117,34 @@
     - Syntax: `assert <any Python statement or code>`
     - If true, nothing happens, if false, raises an `AssertionError`
 ### 🧶 Threading
+- Program, Process, Threads
+    - Program: The code I wrote
+    - Process: One running instance of the code, owned by the OS, with its own memory
+    - Threads: Live instead a process and share its memory
 - Thread
     - An independent path of execution inside one process
 - Daemon
     - A process that runs in the background
 - Python Non-Daemonic Thread (Default)
     - A program will wait for non-daemon threads to complete before it exits
-    - `x = threading.Thread(target=thread_function, args=(1,))`
+    - `thread = threading.Thread(target=thread_function, args=(1,))`
 - Python Daemon Thread
     - A daemon thread will shut down immediately when the program exits
     - The program does not wait for a dameon thread to complete
-    - `x = threading.Thread(target=thread_function, args=(1,), daemon=True)`
+    - `thread = threading.Thread(target=thread_function, args=(1,), daemon=True)`
 - `threading._shutdown()`
     - Python `threading` library waits for every running thread that doesn’t have the daemon flag set to finish
-- `x.join()`
+- `thread.join()`
     - To tell one thread to "wait here" for another thread to finish
-    - Like telling the main thread to wait until the `x` thread has finished to proceed with the rest of its own execution
+    - Like telling the main thread to wait until the `thread` thread has finished to proceed with the rest of its own execution
     - The statement will wait until either kind of thread (daemon or not) is finished
+- `thread.start()` and `thread.run()`
+    - `.start()` will create and start a new thread
+    - `.run()` will execute the thread's work in the current thread which called it
+    - By default, `.start()` will create a new thread and then call `.run()` to run its work in the new thread
+    - Calling `.run()` on a thread while in the main thread will just execute that thread's work in main (essentially no multi-threading)
+- `executor.map()`
+    - `.map()` submits work to a defined thread pool and returns an iterator that can be used to retrieve the results
 - Race Condition
     - A flaw in concurrent code
     - Where the outcome depends on the relative timing or interleaving of multiple threads or processes that access shared state, when at least one of them writes to it
@@ -142,6 +153,9 @@
     - Only one thread at a time can have the Lock (`threading.Lock()`)
     - Any other thread that wants the Lock must wait until the owner of the Lock gives it up
     - Done via `.acquire()` and `.release()`, or as a context manager using `with`
+    - Think of a public restroom with a physical key
+    - A lock doesn't prevent other threads from existing or running. It prevents other threads from entering a particular protected section of code while the lock is held.
 - Deadlock
     - An implementation bug where a Lock is not released properly
-    - A design issue where a utility function needs to be called by functions that might or might not already have the Lock
+    - Occurs when two or more threads are permanently waiting for something that can only happen if another waiting thread makes progress
+
