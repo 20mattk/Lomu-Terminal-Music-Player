@@ -139,12 +139,20 @@
     - Like telling the main thread to wait until the `thread` thread has finished to proceed with the rest of its own execution
     - The statement will wait until either kind of thread (daemon or not) is finished
 - `thread.start()` and `thread.run()`
-    - `.start()` will create and start a new thread
-    - `.run()` will execute the thread's work in the current thread which called it
-    - By default, `.start()` will create a new thread and then call `.run()` to run its work in the new thread
-    - Calling `.run()` on a thread while in the main thread will just execute that thread's work in main (essentially no multi-threading)
+    - `start()` will create and start a new thread
+    - `run()` will execute the thread's work in the current thread which called it
+    - By default, `start()` will create a new thread and then call `run()` to run its work in the new thread
+    - Calling `run()` on a thread while in the main thread will just execute that thread's work in main (essentially no multi-threading)
 - `executor.map()`
-    - `.map()` submits work to a defined thread pool and returns an iterator that can be used to retrieve the results
+    - `map()` submits work to a defined thread pool and returns an iterator that can be used to retrieve the results
+    - Results come back in input order
+    - Exceptions raise when the iteration reaches that item, and the loop ends there
+    - Why: One function, independent inputs, you want results in order, and one failure can abort the whole thing
+- `executor.submit()`
+    - `submit()` immediately returns a `Future` - a receipt for work that’s pending, running, or done
+    - A `Future` has useful methods: `result()`, `exception()`, `done()`, `cancel()`, `add_done_callback()`
+    - `as_completed()` takes Futures and yields each one in the order they finish
+    - Why: Different functions or arguments, per-task error handling, results as they finish, or Future features like callbacks
 - Race Condition
     - A flaw in concurrent code
     - Where the outcome depends on the relative timing or interleaving of multiple threads or processes that access shared state, when at least one of them writes to it
@@ -152,10 +160,18 @@
 - Locking
     - Only one thread at a time can have the Lock (`threading.Lock()`)
     - Any other thread that wants the Lock must wait until the owner of the Lock gives it up
-    - Done via `.acquire()` and `.release()`, or as a context manager using `with`
+    - Done via `acquire()` and `release()`, or as a context manager using `with`
+    - Prefer `with` over manual `acquire()` and `release()` due to exceptions
+    - If an exception fires between them, `release()` is skipped and every other thread waits forever
+    - `with` is safer as it releases no matter how the block exits
     - Think of a public restroom with a physical key
     - A lock doesn't prevent other threads from existing or running. It prevents other threads from entering a particular protected section of code while the lock is held.
 - Deadlock
     - An implementation bug where a Lock is not released properly
     - Occurs when two or more threads are permanently waiting for something that can only happen if another waiting thread makes progress
-
+    - The same thread cannot re-acquire the same lock as this also results in a deadlock
+- RLock
+    - Re-entrant lock lets the same thread acquire repeatedly, as long as it releases the same number of times
+    - An RLock can only be released by its owner
+    - RLock is useful when one locked function calls another that also locks
+    - Other threads stay blocked until the owning thread releases the lock as many times as it acquired it
