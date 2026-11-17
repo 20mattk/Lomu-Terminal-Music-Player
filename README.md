@@ -175,3 +175,15 @@
     - An RLock can only be released by its owner
     - RLock is useful when one locked function calls another that also locks
     - Other threads stay blocked until the owning thread releases the lock as many times as it acquired it
+- Semaphore
+    - A counter of permits, limiting how many threads can use a resource at once
+    - `threading.Semaphore(n)` starts with `n` permits, automatically acquiring and releasing threads
+    - `acquire()` takes one of the available permits to do some work (-1)
+    - `release()` returns one of the permits and makes it available again (+1)
+    - `Lock` is a semaphore with 1 permit
+- Barrier
+    - Blocks each thread until a certain number of threads reach the barrier
+    - Once the threads reach the barrier, then they're released simultaneously
+    - `Barrier(3)` blocks each thread that reaches `wait()` until 3 threads are waiting, then they're released
+    - `Barrier(3)` is reusable: it'll reset after 3 threads have called `wait()`, then be up again for any next 3 threads
+    - `wait(timeout=5)` makes the barrier give up waiting for `n` threads after 5 seconds, and any thread who was waiting there gets `threading.BrokenBarrierError`
