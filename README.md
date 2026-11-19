@@ -117,12 +117,27 @@
     - Syntax: `assert <any Python statement or code>`
     - If true, nothing happens, if false, raises an `AssertionError`
 ### 🧶 Threading
+- Concurrency
+    - Altering/swapping CPU core access between many different processes at incredibly high speeds
+    - Gives the illusion of parallel processing
 - Program, Process, Threads
     - Program: The code I wrote
     - Process: One running instance of the code, owned by the OS, with its own memory
     - Threads: Live instead a process and share its memory
+- Process
+    - Each process has its own ID, program counter, register set, an address space, open files, I/O devices, etc.
+    - The program counter doesn't allow the process control block - the structre the OS uses to reperesent processes - to keep track of more than one task at a time
 - Thread
     - An independent path of execution inside one process
+    - Each inner executable path of a process (thread) gets assigned its own program counter to run concurrently within the process
+    - Each thread gets its own stack, but that stack is from the shared address space of the process it belongs to - so shared data is a concern
+    - A thread is not a function
+    - Threads inform the OS that specific parts of a program can be executed concurrently
+- Multi-Processing vs. Multi-Threading
+    - Processes are independent instances of executing code and do not share memory or mostly anything else
+    - Threads create multiple independent paths of execution within a single process, sharing that process's memory
+    - Spawning new processes can be expensive, taxing on system memory, and may need inter-process communication (IPC)
+    - Spawning new threads is inexpensive and is more efficient with memory usage
 - Daemon
     - A process that runs in the background
 - Python Non-Daemonic Thread (Default)
