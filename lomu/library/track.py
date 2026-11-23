@@ -146,7 +146,7 @@ class Track:
                 return datetime.strptime(
                     date, valid_format
                 ).strftime("%Y-%m-%d")
-            except:
+            except ValueError:
                 pass
 
         raise ValueError(
