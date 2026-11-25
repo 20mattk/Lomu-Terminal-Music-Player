@@ -2,6 +2,7 @@ from .track import Track, AudioFormat
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from pathlib import Path
+from mutagen import MutagenError
 from mutagen.id3 import ID3
 from mutagen.mp3 import MP3
 from mutagen.flac import FLAC
@@ -302,6 +303,9 @@ def load_track(file_path: Path | str) -> Track:
 
     Raises:
         (FileNotFoundError): If the passed file cannot be found.
+        (MutagenError): If the file is unreadable or corrupt.
+        (OSError): If the file is unreadable or corrupt.
+        (ValueError): If the file is not of a supported type.
     """
     file_path = Path(file_path)
 
@@ -313,4 +317,11 @@ def load_track(file_path: Path | str) -> Track:
     factory: MetadataFactory = MetadataFactory()
     extractor: MetadataExtractor = factory.create_extractor(audio_format)
 
-    return extractor.extract_metadata(file_path)
+    try:
+        return extractor.extract_metadata(file_path)
+    except MutagenError as error:
+        raise MutagenError(f"Could not read metadata from {file_path}: {error}")
+    except OSError as error:
+        raise OSError(f"Could not read metadata from {file_path}: {error}")
+    except ValueError as error:
+        raise ValueError(f"Could not read metadata from {file_path}: {error}")
