@@ -6,7 +6,6 @@ from mutagen.id3 import ID3
 from mutagen.mp3 import MP3
 from mutagen.flac import FLAC
 from mutagen.wave import WAVE
-from mutagen import File
 
 
 UNKNOWN_TITLE: str = "Unknown Title"
