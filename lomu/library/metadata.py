@@ -42,6 +42,7 @@ def _format_track_number(raw_str: str) -> int:
         return 1
     return track_number if track_number > 0 else 1
 
+
 def _get_album_art(pictures: Iterable) -> bytes | None:
     """Return the album art bytes, the first image, or None."""
     first: bytes | None = None
@@ -103,9 +104,10 @@ class MP3MetadataExtractor(MetadataExtractor):
                 self._tag_as_str(tags, UNKNOWN_TRACK_NUMBER, "TRCK")
             ),
             duration=audio.info.length,
-            album_art=_get_album_art(
-                tags.getall("APIC") if tags is not None else ()
-            )
+            album_art=None
+            # album_art=_get_album_art(
+            #     tags.getall("APIC") if tags is not None else ()
+            # )
         )
 
     def _tag_as_str(self, tags: ID3 | None, default: str, *keys: str) -> str:
@@ -154,10 +156,6 @@ class FLACMetadataExtractor(MetadataExtractor):
         audio: FLAC = FLAC(file_path)
         tags = audio.tags
 
-        album_art: bytes | None = (
-            audio.pictures[0].data if audio.pictures else None
-        )
-
         return Track(
             file_path=file_path,
             title=self._tag_as_str(tags, UNKNOWN_TITLE, "title"),
@@ -170,7 +168,8 @@ class FLACMetadataExtractor(MetadataExtractor):
                 self._tag_as_str(tags, UNKNOWN_TRACK_NUMBER, "number")
             ),
             duration=audio.info.length,
-            album_art=_get_album_art(audio.pictures)
+            album_art=None
+            # album_art=_get_album_art(audio.pictures)
         )
 
     def _tag_as_str(self, tags, default: str, *keys: str) -> str:
@@ -230,9 +229,10 @@ class WAVMetadataExtractor(MetadataExtractor):
                 self._tag_as_str(tags, UNKNOWN_TRACK_NUMBER, "TRCK")
             ),
             duration=audio.info.length,
-            album_art=_get_album_art(
-                tags.getall("APIC") if tags is not None else ()
-            )
+            album_art=None
+            # album_art=_get_album_art(
+            #     tags.getall("APIC") if tags is not None else ()
+            # )
         )
 
     def _tag_as_str(self, tags: ID3 | None, default: str, *keys: str) -> str:
@@ -288,6 +288,41 @@ class MetadataFactory:
             return WAVMetadataExtractor()
         else:
             raise ValueError(f"Unsupported file type: {audio_format}")
+
+
+def load_track_album_art(track: Track) -> bytes | None:
+    """
+    Helper function to load a Track object's album art on-demand.
+    This is to save memory by not loading all art data into memory at once.
+
+    Arguments:
+        track (Track): The Track object to load album art for using file path.
+    
+    Returns:
+        album_art (bytes | None): The image data of the album art, or None.
+    
+    Raises:
+        None
+    """
+    album_art: bytes | None = None
+
+    if track.audio_format == AudioFormat.MP3:
+        tags: ID3 | None = MP3(track.file_path).tags
+        album_art = _get_album_art(
+            tags.getall("APIC") if tags is not None else ()
+        )
+    elif track.audio_format == AudioFormat.FLAC:
+        flac_audio: FLAC = FLAC(track.file_path)
+        album_art = _get_album_art(flac_audio.pictures)
+    elif track.audio_format == AudioFormat.WAV:
+        tags: ID3 | None = WAVE(track.file_path).tags
+        album_art = _get_album_art(
+            tags.getall("APIC") if tags is not None else ()
+        )
+    else:
+        album_art = None
+
+    return album_art
 
 
 def load_track(file_path: Path | str) -> Track:
