@@ -1,10 +1,10 @@
 from .track import Track, AudioFormat
 from abc import ABC, abstractmethod
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from pathlib import Path
 from mutagen.id3 import ID3
 from mutagen.mp3 import MP3
-from mutagen.flac import FLAC
+from mutagen.flac import FLAC, MetadataBlock, VCFLACDict
 from mutagen.wave import WAVE
 from mutagen import File
 
@@ -113,7 +113,7 @@ class MP3MetadataExtractor(MetadataExtractor):
         Helper function to ensure track metadata is parsed as a string.
         
         Arguments:
-            tags (ID3): The audio metadata.
+            tags (ID3 | None): The audio metadata.
             keys (str): The pieces of metadata to parse in order.
             default (str): The default value to use if the key doesn't work.
         
@@ -152,30 +152,48 @@ class FLACMetadataExtractor(MetadataExtractor):
             None
         """
         audio: FLAC = FLAC(file_path)
+        tags = audio.tags
 
-        title: str = audio.get("title", ["Unknown Title"])[0]
-        artist: str = audio.get("artist", ["Unknown Artist"])[0]
-        album: str = audio.get("album", ["Unknown Album"])[0]
-        release_date: str = audio.get("date", ["0001"])[0]
-        track_number: int = int(audio.get("number", ["1"])[0])
-        duration: float = File(file_path).info.length
         album_art: bytes | None = (
             audio.pictures[0].data if audio.pictures else None
         )
 
         return Track(
             file_path=file_path,
-            title=title,
-            artist=artist,
-            album=album,
-            release_date=release_date,
-            track_number=track_number,
-            duration=duration,
-            album_art=album_art
+            title=self._tag_as_str(tags, UNKNOWN_TITLE, "title"),
+            artist=self._tag_as_str(tags, UNKNOWN_ARTIST, "artist"),
+            album=self._tag_as_str(tags, UNKNOWN_ALBUM, "album"),
+            release_date=_format_date(
+                self._tag_as_str(tags, UNKNOWN_RELEASE_DATE, "date")
+            ),
+            track_number=_format_track_number(
+                self._tag_as_str(tags, UNKNOWN_TRACK_NUMBER, "number")
+            ),
+            duration=audio.info.length,
+            album_art=_get_album_art(audio.pictures)
         )
 
-    def _tag_as_str(self):
-        pass
+    def _tag_as_str(self, tags, default: str, *keys: str) -> str:
+        """
+        Helper function to ensure track metadata is parsed as a string.
+        
+        Arguments:
+            tags (Mapping[str, list[str]] | None): The audio metadata.
+            default (str): The default value to use if the key doesn't work.
+            keys (str): The pieces of metadata to parse in order.
+        
+        Returns:
+            (str): The string representation of the extracted piece of metadata.
+        
+        Raises:
+            None
+        """
+        if tags is not None:
+            for key in keys:
+                text: str = _first_str(tags.get(key))
+                if text:
+                    return text
+        return default
 
 
 class WAVMetadataExtractor(MetadataExtractor):
@@ -222,7 +240,7 @@ class WAVMetadataExtractor(MetadataExtractor):
         Helper function to ensure track metadata is parsed as a string.
         
         Arguments:
-            tags (ID3): The audio metadata.
+            tags (ID3 | None): The audio metadata.
             keys (str): The pieces of metadata to parse in order.
             default (str): The default value to use if the key doesn't work.
         
